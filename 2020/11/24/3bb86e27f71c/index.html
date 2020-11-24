@@ -1,0 +1,988 @@
+
+<!DOCTYPE html>
+<html lang="zh">
+
+
+
+<head>
+  <script>
+    window.themeRuntime = {
+      root: "/",
+      scriptsMap: {},
+      init: {
+        status: false
+      },
+      commentRest: {
+        status: false
+      },
+      versions: {
+        theme: "2.1.0",
+        mdui: "0.4.0",
+        fetch: "3.0.0",
+        es6promise: "4.2.5+7f2b526d",
+        lightgallery: "1.0.1",
+        smoothscroll: "15.2.0"
+      }
+      
+    };
+    console.info("%cCopyright © 2018 - " + new Date().getFullYear() +" Halyul\n"+'Theme Version: ' + themeRuntime.versions.theme +'%c\nhttps://github.com/Halyul/hexo-theme-mdui',"font-size: 14px;color: #3F51B5;","color: #448AFF;text-decoration: none");
+  </script>
+  <!--
+        © HEXO MDUI Theme
+        https://github.com/Halyul/hexo-theme-mdui
+        -->
+
+  <meta charset="UTF-8">
+  <title>前后端分离vue+springboot所遇到的跨域问题 - PGambler</title>
+
+  <!-- Favicons -->
+  <link rel="icon shortcut" type="image/ico" href="/pg.svg">
+  <link rel="icon" sizes="192x192" href="/pgambler.svg">
+  <link rel="apple-touch-icon" href="/pgambler.svg">
+
+  <!-- Meta & Info -->
+  <meta http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  <meta name="theme-color" content="#fff">
+
+  <meta name="author" content="PGambler">
+  
+      <meta name="description" content="跨域这是我第二次遇到此问题，特此记录解决方法。跨域资源共享(CORS) 是一种机制，它使用额外的 HTTP 头来告诉浏览器  让运行在一个 origin (domain) 上的Web应用被准许访问来自不同源服务器上的指定的资源。当一个资源从与该资源本身所在的服务器不同的域、协议或端口请求一个资源时，资源会发起一个跨域 HTTP 请求。">
+  
+  <meta name="keywords" content="blog, hexo, mdui,CORS,JAVA">
+
+  <!--iOS -->
+  <meta name="apple-mobile-web-app-title" content="PGambler">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="480">
+
+  <!-- Add to homescreen for Chrome on Android -->
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <!-- The Open Graph protocol -->
+  <meta property="og:url" content="https://github.com/PGambler/PGambler.github.io">
+  <meta property="og:type" content="blog">
+  <meta property="og:title" content="前后端分离vue+springboot所遇到的跨域问题 - PGambler | PGambler">
+  <meta property="og:image" content="/pgambler.svg" />
+  
+    <meta property="og:description" content="跨域这是我第二次遇到此问题，特此记录解决方法。跨域资源共享(CORS) 是一种机制，它使用额外的 HTTP 头来告诉浏览器  让运行在一个 origin (domain) 上的Web应用被准许访问来自不同源服务器上的指定的资源。当一个资源从与该资源本身所在的服务器不同的域、协议或端口请求一个资源时，资源会发起一个跨域 HTTP 请求。">
+  
+
+  
+    <meta property="og:article:tag" content="CORS">
+  
+    <meta property="og:article:tag" content="JAVA">
+  
+
+  
+
+  <!-- Import CSS -->
+  
+    
+<link rel="stylesheet" href="/css/mdui.css">
+
+  
+
+  
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+
+<body class="mdui-drawer-body-left mdui-theme-primary-indigo mdui-theme-accent-pink">
+
+  <style>
+    #spinner {
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+      -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+          opacity: 1;
+      -webkit-transition: opacity 0.3s cubic-bezier(0, 0, 0.2, 1);
+          transition: opacity 0.3s cubic-bezier(0, 0, 0.2, 1);
+    }
+    main {
+      opacity: 0;
+      -webkit-transition: opacity 0.3s cubic-bezier(0, 0, 0.2, 1);
+      transition: opacity 0.3s cubic-bezier(0, 0, 0.2, 1);
+      display: none;
+    }
+  </style>
+  <div id="spinner">
+    <style>
+      .spinner {
+
+      -webkit-animation: rotator 1.4s linear infinite;
+              animation: rotator 1.4s linear infinite;
+      }
+
+      @-webkit-keyframes rotator {
+      0% {
+        -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+      }
+      100% {
+        -webkit-transform: rotate(270deg);
+                transform: rotate(270deg);
+      }
+      }
+
+      @keyframes rotator {
+      0% {
+        -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+      }
+      100% {
+        -webkit-transform: rotate(270deg);
+                transform: rotate(270deg);
+      }
+      }
+
+      .path {
+      stroke-dasharray: 187;
+      stroke-dashoffset: 0;
+      -webkit-transform-origin: center;
+              transform-origin: center;
+      -webkit-animation: dash 1.4s ease-in-out infinite, colors 5.6s ease-in-out infinite;
+              animation: dash 1.4s ease-in-out infinite, colors 5.6s ease-in-out infinite;
+      }
+
+      @-webkit-keyframes colors {
+      0% {
+        stroke: #4285F4;
+      }
+      25% {
+        stroke: #DE3E35;
+      }
+      50% {
+        stroke: #F7C223;
+      }
+      75% {
+        stroke: #1B9A59;
+      }
+      100% {
+        stroke: #4285F4;
+      }
+      }
+
+      @keyframes colors {
+      0% {
+        stroke: #4285F4;
+      }
+      25% {
+        stroke: #DE3E35;
+      }
+      50% {
+        stroke: #F7C223;
+      }
+      75% {
+        stroke: #1B9A59;
+      }
+      100% {
+        stroke: #4285F4;
+      }
+      }
+
+      @-webkit-keyframes dash {
+      0% {
+        stroke-dashoffset: 187;
+      }
+      50% {
+        stroke-dashoffset: 46.75;
+        -webkit-transform: rotate(135deg);
+                transform: rotate(135deg);
+      }
+      100% {
+        stroke-dashoffset: 187;
+        -webkit-transform: rotate(450deg);
+                transform: rotate(450deg);
+      }
+      }
+
+      @keyframes dash {
+      0% {
+        stroke-dashoffset: 187;
+      }
+      50% {
+        stroke-dashoffset: 46.75;
+        -webkit-transform: rotate(135deg);
+                transform: rotate(135deg);
+      }
+      100% {
+        stroke-dashoffset: 187;
+        -webkit-transform: rotate(450deg);
+                transform: rotate(450deg);
+      }
+      }
+    </style>
+    <svg class="spinner" width="65px" height="65px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
+      <circle class="path" fill="none" stroke-width="6" stroke-linecap="round" cx="33" cy="33" r="30"></circle>
+    </svg>
+  </div>
+
+  <main>
+    <div class="mdui-appbar mdui-appbar-fixed mdui-color-white mdui-shadow-0 theme-appbar">
+  <div class="mdui-toolbar theme-toolbar-top">
+    
+      <a href="/" class="mdui-btn mdui-btn-icon mdui-ripple theme-appbar__burger theme-appbar__burger--arrow">
+        <i class="mdui-icon">
+          <span></span>
+        </i>
+      </a>
+    
+    <div class="mdui-toolbar-spacer"></div>
+    <a href="javascript:;" class="mdui-btn mdui-btn-icon mdui-ripple theme-appbar__mode-switch">
+      <i class="mdui-icon material-icons  theme-appbar__bright-mode">&#xe1ac;</i>
+      <i class="mdui-icon material-icons  theme-appbar__dark-mode" style="display: none;">&#xe3a7;</i>
+    </a>
+  </div>
+  <div class="mdui-toolbar theme-toolbar-bottom">
+    <span class="theme-toolbar-bottom__title">PGambler</span>
+    
+      <a href="/search.html" class="mdui-textfield-icon mdui-btn mdui-btn-icon theme-toolbar-bottom__search">
+        <i class="mdui-icon material-icons">&#xe8b6;</i>
+      </a>
+    
+  </div>
+  <div class="mdui-progress theme-appbar__progress" id="progressBar">
+    <div class="mdui-progress-indeterminate"></div>
+  </div>
+</div>
+
+    <div class="mdui-drawer mdui-drawer-full-height theme-drawer" id="drawer">
+  <!-- header -->
+  <div class="theme-drawer__header">
+  <div class="theme-drawer__header__layer-1">
+    <div class="mdui-toolbar theme-toolbar-top">
+      
+        <a href="javascript:;" class="mdui-btn mdui-btn-icon mdui-ripple theme-appbar__burger theme-appbar__burger--drawer theme-appbar__burger--arrow" id="drawer-back">
+          <i class="mdui-icon">
+            <span></span>
+          </i>
+        </a>
+      
+    </div>
+    <div class="mdui-toolbar theme-toolbar-bottom">
+      <span class="theme-toolbar-bottom__title">PGambler</span>
+    </div>
+  </div>
+  <div class="theme-drawer__header__layer-2" style="background-image: url(https://picsum.photos/seed/woman/1920/1080)">
+    <img class="mdui-img-circle theme-drawer__header__layer-2__user__avatar" src="https://picsum.photos/50"/>
+    <div class="theme-drawer__header__layer-2__user__info">
+      <div class="theme-drawer__header__layer-2__user__info__author mdui-text-color-white-text">
+        PGambler
+      </div>
+      <div class="theme-drawer__header__layer-2__user__info__slogan mdui-text-color-white-secondary">
+        早安，打工人！
+      </div>
+    </div>
+  </div>
+</div>
+
+  <div class="theme-drawer__warpper">
+    <!-- content -->
+    <div class="theme-drawer__warpper__content">
+  <ul class="mdui-list">
+    <a href="/" class="mdui-list-item mdui-ripple mdui-ripple-white">
+      <i class="mdui-list-item-icon mdui-icon material-icons">&#xe88a;</i>
+      <div class="mdui-list-item-content">首页</div>
+    </a>
+    <a href="/archives/" class="mdui-list-item mdui-ripple mdui-ripple-white">
+      <i class="mdui-list-item-icon mdui-icon material-icons">&#xe149;</i>
+      <div class="mdui-list-item-content">归档</div>
+    </a>
+    <ul class="mdui-list mdui-collapse" mdui-collapse="{accordion: true}" mdui-collapse>
+      
+        <div class="mdui-collapse-item ">
+          <div class="mdui-collapse-item-header mdui-list-item mdui-ripple mdui-ripple-white">
+            <i class="mdui-list-item-icon mdui-icon material-icons">&#xe86e;</i>
+            <div class="mdui-list-item-content">分类</div>
+            <i class="mdui-collapse-item-arrow mdui-icon material-icons">&#xe5c5;</i>
+          </div>
+          <div class="mdui-collapse-item-body mdui-list">
+            
+              <a href="/categories/%E5%90%8E%E5%8F%B0/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                后台
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">2</span>
+              </a>
+            
+              <a href="/categories/NOSQL/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                NOSQL
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">1</span>
+              </a>
+            
+              <a href="/categories/%E5%90%8E%E5%8F%B0/JAVA/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                JAVA
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">2</span>
+              </a>
+            
+              <a href="/categories/NOSQL/MONGODB/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                MONGODB
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">1</span>
+              </a>
+            
+              <a href="/categories/%E5%AD%A6%E4%B9%A0/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                学习
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">1</span>
+              </a>
+            
+              <a href="/categories/%E8%87%AA%E5%BB%BA%E5%8C%85/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                自建包
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">2</span>
+              </a>
+            
+              <a href="/categories/%E5%AD%A6%E4%B9%A0/JAVA/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                JAVA
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">1</span>
+              </a>
+            
+              <a href="/categories/%E8%87%AA%E5%BB%BA%E5%8C%85/NODEJS/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                NODEJS
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">2</span>
+              </a>
+            
+              <a href="/categories/%E5%AD%A6%E4%B9%A0/JAVA/SPRING/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                SPRING
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">1</span>
+              </a>
+            
+          </div>
+        </div>
+      
+      
+        <div class="mdui-collapse-item ">
+          <div class="mdui-collapse-item-header mdui-list-item mdui-ripple mdui-ripple-white">
+            <i class="mdui-list-item-icon mdui-icon fa fa-tags mdui-text-center"></i>
+            <div class="mdui-list-item-content">标签</div>
+            <i class="mdui-collapse-item-arrow mdui-icon material-icons">&#xe5c5;</i>
+          </div>
+          <div class="mdui-collapse-item-body mdui-list">
+            
+              <a href="/tags/CORS/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                CORS
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">1</span>
+              </a>
+            
+              <a href="/tags/JAVA/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                JAVA
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">1</span>
+              </a>
+            
+              <a href="/tags/SPRING/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                SPRING
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">1</span>
+              </a>
+            
+              <a href="/tags/IOC%E6%B3%A8%E8%A7%A3/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                IOC注解
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">1</span>
+              </a>
+            
+              <a href="/tags/NOSQL/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                NOSQL
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">1</span>
+              </a>
+            
+              <a href="/tags/MONGODB/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                MONGODB
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">1</span>
+              </a>
+            
+              <a href="/tags/NODEJS/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                NODEJS
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">2</span>
+              </a>
+            
+              <a href="/tags/CRUD/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                CRUD
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">1</span>
+              </a>
+            
+              <a href="/tags/PRINTER/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                PRINTER
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">1</span>
+              </a>
+            
+              <a href="/tags/STRING/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                STRING
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">1</span>
+              </a>
+            
+          </div>
+        </div>
+      
+      <div class="mdui-collapse-item ">
+        <div class="mdui-collapse-item-header mdui-list-item mdui-ripple mdui-ripple-white">
+          <i class="mdui-list-item-icon mdui-icon material-icons">&#xe916;</i>
+          <div class="mdui-list-item-content">年份</div>
+          <i class="mdui-collapse-item-arrow mdui-icon material-icons">&#xe5c5;</i>
+        </div>
+        <div class="mdui-collapse-item-body mdui-list">
+          
+          
+            <a href="/archives/2020/" class="mdui-list-item mdui-ripple">
+              2020
+            </a>
+          
+        </div>
+      </div>
+    </ul>
+  </ul>
+  
+</div>
+
+    <div class="theme-spacer"></div>
+    <!-- footer -->
+    <div class="theme-drawer__warpper__footer">
+  <div class="mdui-typo mdui-typo-caption-opacity">
+    Powered by <a href="http://hexo.io" target="_blank">Hexo</a>
+    <br />
+    Theme - <a href="//github.com/Halyul/hexo-theme-mdui" target="_blank">Halyul/MDUI</a>
+    <br />
+    <span>
+      Copyright ©
+      <span year></span>
+      PGambler
+    </span>
+    
+    
+      <br />
+      <span>
+        最后更新于: 11月 24, 2020
+      </span>
+    
+    
+  </div>
+</div>
+<script type="text/javascript">
+  var copyrightNow = new Date().getFullYear();
+  var textContent = document.querySelector('span[year]')
+  
+    textContent.textContent = copyrightNow
+  
+</script>
+
+  </div>
+</div>
+
+    <div id="top"></div>
+
+    
+<script src="/js/lightgallery.min.js"></script>
+
+
+    <div id="barba-wrapper">
+      <div class="barba-container"  data-namespace="post">
+        
+
+
+
+  
+<link rel="stylesheet" href="/css/prism/darcula.min.css">
+
+
+
+  
+<link rel="stylesheet" href="/css/prism/line-number.min.css">
+
+
+
+<div class="theme-post">
+  <div class="theme-post__background mdui-color-theme"></div>
+  <div class="theme-post__header mdui-color-theme">
+    <div class="theme-post__header__title mdui-text-truncate">
+      前后端分离vue+springboot所遇到的跨域问题
+    </div>
+    <div class="theme-spacer"></div>
+    <div class="theme-post__header__actions mdui-valign">
+      <div>
+        <span>编写时间：</span>
+        <span style="float: right">11月 24, 2020</span>
+        
+      </div>
+      
+      
+  <div class="theme-post__share">
+    <button class="mdui-btn mdui-ripple mdui-btn-icon" mdui-menu="{target: '#post-share-menu'}">
+      <i class="mdui-icon material-icons">&#xe80d;</i>
+    </button>
+
+    <ul class="mdui-menu" id="post-share-menu">
+
+      
+        <li class="mdui-menu-item">
+            <a href="https://www.facebook.com/sharer/sharer.php?u=https://github.com/PGambler/PGambler.github.io//2020/11/24/3bb86e27f71c/index.html" target="_blank" class="mdui-ripple">
+                分享到Facebook
+            </a>
+        </li>
+      
+
+      
+        <li class="mdui-menu-item">
+            <a href="https://plus.google.com/share?url=https://github.com/PGambler/PGambler.github.io//2020/11/24/3bb86e27f71c/index.html" target="_blank" class="mdui-ripple">
+                分享到Google+
+            </a>
+        </li>
+      
+
+      
+        <li class="mdui-menu-item">
+            <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://github.com/PGambler/PGambler.github.io//2020/11/24/3bb86e27f71c/index.html&title=前后端分离vue+springboot所遇到的跨域问题" target="_blank" class="mdui-ripple">
+                分享到Linkedin
+            </a>
+        </li>
+      
+
+      
+
+      
+
+      
+        <li class="mdui-menu-item">
+            <a href="https://twitter.com/intent/tweet?text=前后端分离vue+springboot所遇到的跨域问题&url=https://github.com/PGambler/PGambler.github.io//2020/11/24/3bb86e27f71c/index.html&via=PGambler" target="_blank" class="mdui-ripple">
+                分享到Twitter
+            </a>
+        </li>
+      
+
+      
+
+    </ul>
+  </div>
+
+
+    </div>
+  </div>
+  <div class="theme-post__warpper
+    
+  ">
+    <div class="theme-post__warpper__container">
+      <article class="mdui-card theme-post__card mdui-hoverable">
+        <section class="theme-post__card__warning">
+          这篇文章最后修改于
+          <span id="content-warning"></span>
+          天之前。
+          本页内容可能已经过时！
+        </section>
+        
+        
+          <section class="mdui-card-media">
+            <img src="/images/random/19.png"/>
+          </section>
+        
+        <section class="mdui-typo theme-post__card__content">
+          <h1 id="跨域"><a href="#跨域" class="headerlink" title="跨域"></a>跨域</h1><p>这是我第二次遇到此问题，特此记录解决方法。<br>跨域资源共享(CORS) 是一种机制，它使用额外的 HTTP 头来告诉浏览器  让运行在一个 origin (domain) 上的Web应用被准许访问来自不同源服务器上的指定的资源。当一个资源从与该资源本身所在的服务器不同的域、协议或端口请求一个资源时，资源会发起一个跨域 HTTP 请求。</p>
+<a id="more"></a>
+<p>比如，站点 <a target="_blank" rel="noopener" href="http://domain-a.com/">http://domain-a.com</a> 的某 HTML 页面通过 </p>
+<p>出于安全原因，浏览器限制从脚本内发起的跨源HTTP请求。 例如，XMLHttpRequest和Fetch API遵循同源策略。 这意味着使用这些API的Web应用程序只能从加载应用程序的同一个域请求HTTP资源，除非响应报文包含了正确CORS响应头。 </p>
+<p>（译者注：这段描述不准确，并不一定是浏览器限制了发起跨站请求，也可能是跨站请求可以正常发起，但是返回结果被浏览器拦截了。）</p>
+<p>跨域资源共享（CORS ）机制允许 Web 应用服务器进行跨域访问控制，从而使跨域数据传输得以安全进行。现代浏览器支持在 API 容器中（例如 XMLHttpRequest 或Fetch）使用 CORS，以降低跨域 HTTP 请求所带来的风险。</p>
+<p>摘自：<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Access_control_CORS">https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Access_control_CORS</a></p>
+<h1 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h1><h2 id="通过编写中间件（过滤器、适配器）"><a href="#通过编写中间件（过滤器、适配器）" class="headerlink" title="通过编写中间件（过滤器、适配器）"></a>通过编写中间件（过滤器、适配器）</h2><p>这里我通过滤器实现：</p>
+<figure class="highlight plain"><div class="mdui-table-fluid theme-post__card__table--flat"><table class="mdui-table mdui-table-hoverable "><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">package com.example.redisdemo.config;</span><br><span class="line"></span><br><span class="line">import java.io.IOException;</span><br><span class="line"></span><br><span class="line">import javax.servlet.Filter;</span><br><span class="line">import javax.servlet.FilterChain;</span><br><span class="line">import javax.servlet.FilterConfig;</span><br><span class="line">import javax.servlet.ServletException;</span><br><span class="line">import javax.servlet.ServletRequest;</span><br><span class="line">import javax.servlet.ServletResponse;</span><br><span class="line">import javax.servlet.http.HttpServletResponse;</span><br><span class="line"></span><br><span class="line">import org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line">@Component</span><br><span class="line">public class CorsFilter implements Filter &#123;</span><br><span class="line"></span><br><span class="line">    &#x2F;*跨域请求配置*&#x2F;</span><br><span class="line">    @Override</span><br><span class="line">    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException &#123;</span><br><span class="line">        HttpServletResponse response &#x3D; (HttpServletResponse) res;</span><br><span class="line">        response.setHeader(&quot;Access-Control-Allow-Origin&quot;,&quot;*&quot;);</span><br><span class="line">        response.setHeader(&quot;Access-Control-Allow-Credentials&quot;, &quot;true&quot;);</span><br><span class="line">        response.setHeader(&quot;Access-Control-Allow-Methods&quot;, &quot;POST, PUT, GET, OPTIONS, DELETE&quot;);</span><br><span class="line">        response.setHeader(&quot;Access-Control-Max-Age&quot;, &quot;5000&quot;);</span><br><span class="line">        response.setHeader(&quot;Access-Control-Expose-Headers&quot;, &quot;Token&quot;);</span><br><span class="line">        response.setHeader(&quot;Access-Control-Allow-Headers&quot;, &quot;Origin, No-Cache, X-Requested-With, If-Modified-Since, Pragma, Last-Modified, Cache-Control, Expires, Content-Type, X-E4M-With,Authorization,Token&quot;);</span><br><span class="line">        chain.doFilter(req, res);</span><br><span class="line">    &#125;</span><br><span class="line">    @Override</span><br><span class="line">    public void init(FilterConfig filterConfig) &#123;&#125;</span><br><span class="line">    @Override</span><br><span class="line">    public void destroy() &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></div></figure>
+<p>从该过滤器可看到，它将请求的响应体进行了部分设置，包括：<br>Access-Control-Allow-Origin：访问源控制<br>Access-Control-Allow-Credentials：是否返回cookie<br>Access-Control-Allow-Methods：处理发送请求方式<br>Access-Control-Expose-Headers：允许暴露给前端的属性<br>Access-Control-Allow-Headers：允许前端访问携带的属性</p>
+<h2 id="通过Spring注解的方式"><a href="#通过Spring注解的方式" class="headerlink" title="通过Spring注解的方式"></a>通过Spring注解的方式</h2><p>为请求handler或controller添加@CrossOrigin允许跨源请求注解，默认允许所有的域以及允许所有的header。</p>
+<p>详见：<a target="_blank" rel="noopener" href="https://docs.spring.io/spring/docs/4.2.7.RELEASE/javadoc-api/org/springframework/web/bind/annotation/CrossOrigin.html">https://docs.spring.io/spring/docs/4.2.7.RELEASE/javadoc-api/org/springframework/web/bind/annotation/CrossOrigin.html</a></p>
+
+        </section>
+
+        
+          <section class="theme-post__card__license mdui-typo">
+            <span>
+              本文许可协议：
+              
+                <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0</a>
+              
+            </span>
+            <br />
+            <span>本文永久链接：<a href="https://github.com/PGambler/PGambler.github.io/2020/11/24/3bb86e27f71c/">https://github.com/PGambler/PGambler.github.io/2020/11/24/3bb86e27f71c/</a></span>
+            
+              <br />
+              <span>本文Markdown：<a href="https://github.com/PGambler/PGambler.github.io/2020/11/24/3bb86e27f71c/前后端分离vue-springboot所遇到的跨域问题.md">https://github.com/PGambler/PGambler.github.io/2020/11/24/3bb86e27f71c/前后端分离vue-springboot所遇到的跨域问题.md</a></span>
+            
+          </section>
+        
+
+        
+          <section class="mdui-card-actions theme-post__card__actions">
+            
+              <button class="mdui-btn mdui-btn-icon mdui-btn-dense mdui-ripple  mdui-color-red" mdui-tooltip="{content: '打赏', position: 'right'}" mdui-dialog="{target: '#donateDialog'}">
+                <i class="mdui-icon fa fa-beer"></i>
+              </button>
+            
+            <div class="theme-spacer"></div>
+            
+              <div class="mdui-chip theme-post__card__chip--bg theme-post__card__chip--margin">
+                <span class="mdui-chip-icon theme-post__card__chip--bg"><i class="mdui-icon mdui-text-color-black-icon material-icons">&#xe149;</i></span>
+              </div>
+              <div class="mdui-typo">
+                
+                  <a href="/categories/%E5%90%8E%E5%8F%B0/">
+                    <span>后台</span>
+                  </a>
+                
+                  <a href="/categories/%E5%90%8E%E5%8F%B0/JAVA/">
+                    <span>JAVA</span>
+                  </a>
+                
+              </div>
+            
+            
+              <div class="mdui-chip theme-post__card__chip--bg theme-post__card__chip--margin">
+                <span class="mdui-chip-icon theme-post__card__chip--bg"><i class="mdui-icon mdui-text-color-black-icon fa fa-tags"></i></span>
+              </div>
+              <div class="mdui-typo">
+                
+                  <a href="/tags/CORS/">
+                    <span>CORS</span>
+                  </a>
+                
+                  <a href="/tags/JAVA/">
+                    <span>JAVA</span>
+                  </a>
+                
+              </div>
+            
+          </section>
+        
+
+        
+          
+            <script type="text/javascript">
+              themeRuntime.commentRest.function = function (newIdentifier, newUrl, newTitle) {
+                return
+              }
+            </script>
+          
+        
+      </article>
+      
+        <div class="mdui-color-theme theme-post__toc">
+          <html><head></head><body><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E8%B7%A8%E5%9F%9F" data-href="#%E8%B7%A8%E5%9F%9F"><span class="toc-number"></span> <span class="toc-text">1. &#x8DE8;&#x57DF;</span></a></li><li class="toc-item toc-level-1"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E5%AE%9E%E7%8E%B0" data-href="#%E5%AE%9E%E7%8E%B0"><span class="toc-number"></span> <span class="toc-text">2. &#x5B9E;&#x73B0;</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E9%80%9A%E8%BF%87%E7%BC%96%E5%86%99%E4%B8%AD%E9%97%B4%E4%BB%B6%EF%BC%88%E8%BF%87%E6%BB%A4%E5%99%A8%E3%80%81%E9%80%82%E9%85%8D%E5%99%A8%EF%BC%89" data-href="#%E9%80%9A%E8%BF%87%E7%BC%96%E5%86%99%E4%B8%AD%E9%97%B4%E4%BB%B6%EF%BC%88%E8%BF%87%E6%BB%A4%E5%99%A8%E3%80%81%E9%80%82%E9%85%8D%E5%99%A8%EF%BC%89"><span class="toc-number"></span> <span class="toc-text">2.1. &#x901A;&#x8FC7;&#x7F16;&#x5199;&#x4E2D;&#x95F4;&#x4EF6;&#xFF08;&#x8FC7;&#x6EE4;&#x5668;&#x3001;&#x9002;&#x914D;&#x5668;&#xFF09;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E9%80%9A%E8%BF%87Spring%E6%B3%A8%E8%A7%A3%E7%9A%84%E6%96%B9%E5%BC%8F" data-href="#%E9%80%9A%E8%BF%87Spring%E6%B3%A8%E8%A7%A3%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="toc-number"></span> <span class="toc-text">2.2. &#x901A;&#x8FC7;Spring&#x6CE8;&#x89E3;&#x7684;&#x65B9;&#x5F0F;</span></a></li></ol></li></ol></body></html>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="theme-spacer"></div>
+
+  
+    <div class="mdui-color-theme theme-post__toc-fab">
+  <button class="mdui-fab mdui-color-theme-accent mdui-ripple mdui-fab-fixed mdui-hidden-md-up" mdui-menu="{target: '#toc-fab-menu', fixed: true}" id="toc-fab">
+    <i class="mdui-icon material-icons">&#xe242;</i>
+  </button>
+  <ul class="mdui-menu mdui-typo theme-post__toc-fab__menu" id="toc-fab-menu" style="padding: 8px;max-height: 80%">
+    <html><head></head><body><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E8%B7%A8%E5%9F%9F" data-href="#%E8%B7%A8%E5%9F%9F"><span class="toc-number"></span> <span class="toc-text">1. &#x8DE8;&#x57DF;</span></a></li><li class="toc-item toc-level-1"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E5%AE%9E%E7%8E%B0" data-href="#%E5%AE%9E%E7%8E%B0"><span class="toc-number"></span> <span class="toc-text">2. &#x5B9E;&#x73B0;</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E9%80%9A%E8%BF%87%E7%BC%96%E5%86%99%E4%B8%AD%E9%97%B4%E4%BB%B6%EF%BC%88%E8%BF%87%E6%BB%A4%E5%99%A8%E3%80%81%E9%80%82%E9%85%8D%E5%99%A8%EF%BC%89" data-href="#%E9%80%9A%E8%BF%87%E7%BC%96%E5%86%99%E4%B8%AD%E9%97%B4%E4%BB%B6%EF%BC%88%E8%BF%87%E6%BB%A4%E5%99%A8%E3%80%81%E9%80%82%E9%85%8D%E5%99%A8%EF%BC%89"><span class="toc-number"></span> <span class="toc-text">2.1. &#x901A;&#x8FC7;&#x7F16;&#x5199;&#x4E2D;&#x95F4;&#x4EF6;&#xFF08;&#x8FC7;&#x6EE4;&#x5668;&#x3001;&#x9002;&#x914D;&#x5668;&#xFF09;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E9%80%9A%E8%BF%87Spring%E6%B3%A8%E8%A7%A3%E7%9A%84%E6%96%B9%E5%BC%8F" data-href="#%E9%80%9A%E8%BF%87Spring%E6%B3%A8%E8%A7%A3%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="toc-number"></span> <span class="toc-text">2.2. &#x901A;&#x8FC7;Spring&#x6CE8;&#x89E3;&#x7684;&#x65B9;&#x5F0F;</span></a></li></ol></li></ol></body></html>
+  </ul>
+</div>
+
+  
+
+  
+    <div class="theme-post__pagination mdui-color-theme">
+  
+    <div class="theme-post__pagination__prev mdui-ripple mdui-valign">
+      
+        <a href="/2020/11/24/e239fbf527a5/" class="theme-post__pagination__prev__content mdui-text-left">
+        
+        <div>
+          <i class="mdui-icon material-icons mdui-text-center">&#xe5cb;</i>
+          <span class="mdui-typo-body-2-opacity mdui-text-center">新的文章</span>
+        </div>
+        <div class="mdui-typo-title mdui-text-truncate">
+          springIOC相关注册注解及接口
+        </div>
+      </a>
+    </div>
+  
+
+  
+    <div class="theme-post__pagination__next mdui-ripple mdui-valign">
+      
+        <a href="/2020/11/24/f8afecf942d8/" class="theme-post__pagination__next__content mdui-text-right">
+        
+        <div>
+          <span class="mdui-typo-body-2-opacity mdui-text-center">旧的文章</span>
+          <i class="mdui-icon material-icons mdui-text-center">&#xe5cc;</i>
+        </div>
+        <div class="mdui-typo-title mdui-text-truncate">
+          字符转换大字符
+        </div>
+      </a>
+    </div>
+    
+</div>
+
+  
+
+  
+    <div class="mdui-dialog" id="donateDialog">
+      <div class="mdui-dialog-title">打赏</div>
+      <div class="mdui-dialog-content">
+        <div class="mdui-list">
+          
+            <a href="/img/avatar.png" title="wechat" class="mdui-list-item mdui-ripple" target="_blank">
+              
+                <i class="mdui-list-item-icon mdui-icon fa fa-wechat mdui-text-center"></i>&emsp;
+              
+              
+              
+              wechat
+            </a>
+          
+            <a href="https://paypal.com" title="paypay" class="mdui-list-item mdui-ripple" target="_blank">
+              
+                <i class="mdui-list-item-icon mdui-icon fa fa-paypal mdui-text-center"></i>&emsp;
+              
+              
+              
+              paypay
+            </a>
+          
+        </div>
+      </div>
+      <div class="mdui-dialog-actions">
+        <button class="mdui-btn mdui-ripple mdui-ripple" mdui-dialog-close>不要</button>
+      </div>
+    </div>
+  
+</div>
+<script type="text/javascript">
+  themeRuntime.scriptsMap.post = [];
+  if (document.querySelector('.theme-post__toc-fab__menu > ol') !== null && document.querySelector('.theme-post__toc > ol') !== null) {
+    tocHighlight()
+    function tocHighlight() {
+      var timer;
+      function doWork() {
+        listens.forEach(function (value, index) {
+          value[1]();
+          value[0].classList.remove("mdui-list-item-active");
+        })
+        let actionToc = (listens[listens.reduce(function (r, v, index) {
+          if (v[2] == true) {
+            return index;
+          } else return r;
+        }, undefined)] || [])[0] || listens[0][0];
+        actionToc.classList.add("mdui-list-item-active");
+        if (actionToc.getClientRects().length == 0) return;
+        showToc(actionToc);
+      }
+      function showToc(toc) {
+        let offsetTop = toc.getClientRects()[0].top - cardToc.getClientRects()[0].top - 40;
+        let offsetBottom = toc.getClientRects()[0].bottom - cardToc.getClientRects()[0].bottom + 40;
+        let offset = 0;
+        if (offsetTop < 0) offset = offsetTop;
+        if (offsetBottom > 0) offset = offsetBottom;
+        var targetTop = Math.max(0, Math.min(cardToc.scrollTop + offset, toclist.offsetHeight - cardToc.offsetHeight));
+        clearInterval(timer);
+        timer = setInterval(function () {
+          var now = cardToc.scrollTop;
+          var speed = (targetTop - now) / 10;
+          speed = speed > 0 ? Math.ceil(speed) : Math.floor(speed);
+          if (Math.abs(now - targetTop) < 1) {
+            clearInterval(timer);
+          }
+          cardToc.scrollTop = now + speed;
+        }, 30);
+      }
+      var listens = [];
+      var cardToc = document.querySelector('.theme-post__toc');
+      var links = cardToc.querySelectorAll(".theme-post__toc__content__link");
+      var toclist = document.querySelector(".theme-post__toc > ol");
+      Array.prototype.forEach.call(links, function (value, index) {
+        var id = (value.getAttribute("href") || "#").slice(1);
+        var element = document.getElementById(id);
+        listens.push([value, function () {
+          var readed = false;
+          var scrollTop = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop;
+          if (element && (element.offsetTop <= scrollTop + element.clientHeight + 64)) {
+            readed = true;
+          } else {
+            readed = false;
+          }
+          listens[index][2] = readed;
+        }, false])
+      })
+      doWork();
+      window.addEventListener("scroll", doWork)
+      var listener = {
+        function: doWork,
+        event: 'scroll',
+        el: window,
+        removed: false
+      }
+      themeRuntime.scriptsMap.post.push(listener)
+    }
+  }
+</script>
+
+<script type="text/javascript">
+  (function () {
+    var postLastModifiedDate = 1606219873000
+    var today = (new Date()).getTime()
+    var difference = Math.floor((today - postLastModifiedDate) / (24 * 60 * 60 * 1000))
+    if (difference >= 100) {
+      document.querySelector('.theme-post__card__warning').style.display = 'block'
+      document.querySelector('#content-warning').textContent = difference
+    }
+  })();
+</script>
+
+<script type="text/javascript">
+  var images = document.querySelectorAll('.theme-post__card__content img')
+  for (i = 0; i < images.length; i++) {
+    //console.log('image added', i)
+    images[i].addEventListener("click", openLG);
+    var listener = {
+      function: openLG,
+      event: 'click',
+      el: images[i],
+      removed: false
+    }
+    themeRuntime.scriptsMap.post.push(listener)
+  }
+  function openLG() {
+    var img_src = this.getAttribute('src');
+    var img_alt = this.getAttribute('alt');
+    lightGallery(this, {
+      dynamic: true,
+      counter: false,
+      dynamicEl: [{
+        "src": img_src,
+        'subHtml': "<span author>PGambler</span><div descr>" + img_alt + "</div>"
+      }],
+    });
+  }
+</script>
+
+
+
+      </div>
+    </div>
+  </main>
+
+  <div id="outdated" style="z-index: 9999;">
+    <h6>你的浏览器已经过气辣！</h6>
+    <p>赶紧升级浏览器来访问本站吧！<a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">现在就去</a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="关闭">&times;</a></p>
+  </div>
+  <!-- import js -->
+
+
+  
+<script src="/js/outdatedbrowser.min.js"></script>
+
+
+
+
+  
+    
+<script src="/js/js.barba.min.js"></script>
+
+    <script type="text/javascript">
+      Barba.Utils.errorPageUrl = '/404.html';
+    </script>
+  
+
+
+<!-- theme js -->
+<script type="text/javascript">
+  (function() {
+    var appbarTopFlag = false;
+    var appbarEl = document.querySelector('.theme-appbar');
+    function appbarShadow() {
+      var bodyScrolled = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop;
+      if (bodyScrolled > 0 && !appbarTopFlag) {
+        appbarEl.classList.add('theme-appbar--shadow');
+        appbarTopFlag = true;
+      } else if (bodyScrolled === 0 && appbarTopFlag) {
+        appbarEl.classList.remove('theme-appbar--shadow');
+        appbarTopFlag = false;
+      }
+    }
+    appbarShadow()
+    window.addEventListener('scroll', appbarShadow);
+  })();
+  (function() {
+    function detechTheme() {
+      var modeFlag = localStorage.getItem('darkMode');
+      // true for dark mode, false for bright mode
+      if(modeFlag === "true"){
+        document.querySelector('body').classList.add('mdui-theme-layout-dark')
+        document.querySelector('meta[name="theme-color"]').setAttribute("content", "#212121")
+        return true
+      } else if(!window.matchMedia) {
+          return false;
+      } else if(window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        document.querySelector('body').classList.add('mdui-theme-layout-dark')
+        document.querySelector('meta[name="theme-color"]').setAttribute("content", "#212121")
+          return true;
+      } else if(window.matchMedia("(prefers-color-scheme: light)").matches) {
+        document.querySelector('body').classList.remove('mdui-theme-layout-dark')
+        document.querySelector('meta[name="theme-color"]').setAttribute("content", "#fff")
+          return false;
+      } else {
+        return false;
+      }
+    }
+    var modeFlag = detechTheme();
+    var modeEl = document.querySelector('.theme-appbar__mode-switch');
+    function modeSwitch() {
+      if (!modeFlag) {
+        // default bright mode, switch to dark mode
+        document.querySelector('body').classList.add('mdui-theme-layout-dark');
+        document.querySelector('meta[name="theme-color"]').setAttribute("content", "#212121")
+        localStorage.setItem('darkMode', true);
+        modeFlag = true;
+      } else {
+        // dark mode, switch to bright mode
+        document.querySelector('body').classList.remove('mdui-theme-layout-dark');
+        document.querySelector('meta[name="theme-color"]').setAttribute("content", "#fff")
+        localStorage.setItem('darkMode', false);
+        modeFlag = false;
+      }
+    }
+    modeEl.addEventListener('click', modeSwitch);
+  })();
+</script>
+
+
+
+
+
+
+<script type="text/javascript">
+  document.querySelector('body').classList.add('theme-loaded')
+</script>
+
+
+
+
+</body>
+</html>

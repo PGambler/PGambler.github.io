@@ -1,0 +1,1051 @@
+
+<!DOCTYPE html>
+<html lang="zh">
+
+
+
+<head>
+  <script>
+    window.themeRuntime = {
+      root: "/",
+      scriptsMap: {},
+      init: {
+        status: false
+      },
+      commentRest: {
+        status: false
+      },
+      versions: {
+        theme: "2.1.0",
+        mdui: "0.4.0",
+        fetch: "3.0.0",
+        es6promise: "4.2.5+7f2b526d",
+        lightgallery: "1.0.1",
+        smoothscroll: "15.2.0"
+      }
+      
+    };
+    console.info("%cCopyright © 2018 - " + new Date().getFullYear() +" Halyul\n"+'Theme Version: ' + themeRuntime.versions.theme +'%c\nhttps://github.com/Halyul/hexo-theme-mdui',"font-size: 14px;color: #3F51B5;","color: #448AFF;text-decoration: none");
+  </script>
+  <!--
+        © HEXO MDUI Theme
+        https://github.com/Halyul/hexo-theme-mdui
+        -->
+
+  <meta charset="UTF-8">
+  <title>字符转换大字符 - PGambler</title>
+
+  <!-- Favicons -->
+  <link rel="icon shortcut" type="image/ico" href="/pg.svg">
+  <link rel="icon" sizes="192x192" href="/pgambler.svg">
+  <link rel="apple-touch-icon" href="/pgambler.svg">
+
+  <!-- Meta & Info -->
+  <meta http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  <meta name="theme-color" content="#fff">
+
+  <meta name="author" content="PGambler">
+  
+      <meta name="description" content="字符转换大字符平时使用其他架构或者其他项目中，在控制台或日志文件中会出现由多个字符组成项目的名称，看起来有点意思。但是我们平时开发项目想要这样打印项目名称时，会发现拼装繁琐，而且浪费时间。printBigChar能根据特定的规则得到我们想要的字符形状，目前支持26个字母（大小写）。">
+  
+  <meta name="keywords" content="blog, hexo, mdui,NODEJS,PRINTER,STRING">
+
+  <!--iOS -->
+  <meta name="apple-mobile-web-app-title" content="PGambler">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="480">
+
+  <!-- Add to homescreen for Chrome on Android -->
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <!-- The Open Graph protocol -->
+  <meta property="og:url" content="https://github.com/PGambler/PGambler.github.io">
+  <meta property="og:type" content="blog">
+  <meta property="og:title" content="字符转换大字符 - PGambler | PGambler">
+  <meta property="og:image" content="/pgambler.svg" />
+  
+    <meta property="og:description" content="字符转换大字符平时使用其他架构或者其他项目中，在控制台或日志文件中会出现由多个字符组成项目的名称，看起来有点意思。但是我们平时开发项目想要这样打印项目名称时，会发现拼装繁琐，而且浪费时间。printBigChar能根据特定的规则得到我们想要的字符形状，目前支持26个字母（大小写）。">
+  
+
+  
+    <meta property="og:article:tag" content="NODEJS">
+  
+    <meta property="og:article:tag" content="PRINTER">
+  
+    <meta property="og:article:tag" content="STRING">
+  
+
+  
+
+  <!-- Import CSS -->
+  
+    
+<link rel="stylesheet" href="/css/mdui.css">
+
+  
+
+  
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+
+<body class="mdui-drawer-body-left mdui-theme-primary-indigo mdui-theme-accent-pink">
+
+  <style>
+    #spinner {
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+      -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+          opacity: 1;
+      -webkit-transition: opacity 0.3s cubic-bezier(0, 0, 0.2, 1);
+          transition: opacity 0.3s cubic-bezier(0, 0, 0.2, 1);
+    }
+    main {
+      opacity: 0;
+      -webkit-transition: opacity 0.3s cubic-bezier(0, 0, 0.2, 1);
+      transition: opacity 0.3s cubic-bezier(0, 0, 0.2, 1);
+      display: none;
+    }
+  </style>
+  <div id="spinner">
+    <style>
+      .spinner {
+
+      -webkit-animation: rotator 1.4s linear infinite;
+              animation: rotator 1.4s linear infinite;
+      }
+
+      @-webkit-keyframes rotator {
+      0% {
+        -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+      }
+      100% {
+        -webkit-transform: rotate(270deg);
+                transform: rotate(270deg);
+      }
+      }
+
+      @keyframes rotator {
+      0% {
+        -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+      }
+      100% {
+        -webkit-transform: rotate(270deg);
+                transform: rotate(270deg);
+      }
+      }
+
+      .path {
+      stroke-dasharray: 187;
+      stroke-dashoffset: 0;
+      -webkit-transform-origin: center;
+              transform-origin: center;
+      -webkit-animation: dash 1.4s ease-in-out infinite, colors 5.6s ease-in-out infinite;
+              animation: dash 1.4s ease-in-out infinite, colors 5.6s ease-in-out infinite;
+      }
+
+      @-webkit-keyframes colors {
+      0% {
+        stroke: #4285F4;
+      }
+      25% {
+        stroke: #DE3E35;
+      }
+      50% {
+        stroke: #F7C223;
+      }
+      75% {
+        stroke: #1B9A59;
+      }
+      100% {
+        stroke: #4285F4;
+      }
+      }
+
+      @keyframes colors {
+      0% {
+        stroke: #4285F4;
+      }
+      25% {
+        stroke: #DE3E35;
+      }
+      50% {
+        stroke: #F7C223;
+      }
+      75% {
+        stroke: #1B9A59;
+      }
+      100% {
+        stroke: #4285F4;
+      }
+      }
+
+      @-webkit-keyframes dash {
+      0% {
+        stroke-dashoffset: 187;
+      }
+      50% {
+        stroke-dashoffset: 46.75;
+        -webkit-transform: rotate(135deg);
+                transform: rotate(135deg);
+      }
+      100% {
+        stroke-dashoffset: 187;
+        -webkit-transform: rotate(450deg);
+                transform: rotate(450deg);
+      }
+      }
+
+      @keyframes dash {
+      0% {
+        stroke-dashoffset: 187;
+      }
+      50% {
+        stroke-dashoffset: 46.75;
+        -webkit-transform: rotate(135deg);
+                transform: rotate(135deg);
+      }
+      100% {
+        stroke-dashoffset: 187;
+        -webkit-transform: rotate(450deg);
+                transform: rotate(450deg);
+      }
+      }
+    </style>
+    <svg class="spinner" width="65px" height="65px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
+      <circle class="path" fill="none" stroke-width="6" stroke-linecap="round" cx="33" cy="33" r="30"></circle>
+    </svg>
+  </div>
+
+  <main>
+    <div class="mdui-appbar mdui-appbar-fixed mdui-color-white mdui-shadow-0 theme-appbar">
+  <div class="mdui-toolbar theme-toolbar-top">
+    
+      <a href="/" class="mdui-btn mdui-btn-icon mdui-ripple theme-appbar__burger theme-appbar__burger--arrow">
+        <i class="mdui-icon">
+          <span></span>
+        </i>
+      </a>
+    
+    <div class="mdui-toolbar-spacer"></div>
+    <a href="javascript:;" class="mdui-btn mdui-btn-icon mdui-ripple theme-appbar__mode-switch">
+      <i class="mdui-icon material-icons  theme-appbar__bright-mode">&#xe1ac;</i>
+      <i class="mdui-icon material-icons  theme-appbar__dark-mode" style="display: none;">&#xe3a7;</i>
+    </a>
+  </div>
+  <div class="mdui-toolbar theme-toolbar-bottom">
+    <span class="theme-toolbar-bottom__title">PGambler</span>
+    
+      <a href="/search.html" class="mdui-textfield-icon mdui-btn mdui-btn-icon theme-toolbar-bottom__search">
+        <i class="mdui-icon material-icons">&#xe8b6;</i>
+      </a>
+    
+  </div>
+  <div class="mdui-progress theme-appbar__progress" id="progressBar">
+    <div class="mdui-progress-indeterminate"></div>
+  </div>
+</div>
+
+    <div class="mdui-drawer mdui-drawer-full-height theme-drawer" id="drawer">
+  <!-- header -->
+  <div class="theme-drawer__header">
+  <div class="theme-drawer__header__layer-1">
+    <div class="mdui-toolbar theme-toolbar-top">
+      
+        <a href="javascript:;" class="mdui-btn mdui-btn-icon mdui-ripple theme-appbar__burger theme-appbar__burger--drawer theme-appbar__burger--arrow" id="drawer-back">
+          <i class="mdui-icon">
+            <span></span>
+          </i>
+        </a>
+      
+    </div>
+    <div class="mdui-toolbar theme-toolbar-bottom">
+      <span class="theme-toolbar-bottom__title">PGambler</span>
+    </div>
+  </div>
+  <div class="theme-drawer__header__layer-2" style="background-image: url(https://picsum.photos/seed/woman/1920/1080)">
+    <img class="mdui-img-circle theme-drawer__header__layer-2__user__avatar" src="https://picsum.photos/50"/>
+    <div class="theme-drawer__header__layer-2__user__info">
+      <div class="theme-drawer__header__layer-2__user__info__author mdui-text-color-white-text">
+        PGambler
+      </div>
+      <div class="theme-drawer__header__layer-2__user__info__slogan mdui-text-color-white-secondary">
+        早安，打工人！
+      </div>
+    </div>
+  </div>
+</div>
+
+  <div class="theme-drawer__warpper">
+    <!-- content -->
+    <div class="theme-drawer__warpper__content">
+  <ul class="mdui-list">
+    <a href="/" class="mdui-list-item mdui-ripple mdui-ripple-white">
+      <i class="mdui-list-item-icon mdui-icon material-icons">&#xe88a;</i>
+      <div class="mdui-list-item-content">首页</div>
+    </a>
+    <a href="/archives/" class="mdui-list-item mdui-ripple mdui-ripple-white">
+      <i class="mdui-list-item-icon mdui-icon material-icons">&#xe149;</i>
+      <div class="mdui-list-item-content">归档</div>
+    </a>
+    <ul class="mdui-list mdui-collapse" mdui-collapse="{accordion: true}" mdui-collapse>
+      
+        <div class="mdui-collapse-item ">
+          <div class="mdui-collapse-item-header mdui-list-item mdui-ripple mdui-ripple-white">
+            <i class="mdui-list-item-icon mdui-icon material-icons">&#xe86e;</i>
+            <div class="mdui-list-item-content">分类</div>
+            <i class="mdui-collapse-item-arrow mdui-icon material-icons">&#xe5c5;</i>
+          </div>
+          <div class="mdui-collapse-item-body mdui-list">
+            
+              <a href="/categories/%E5%90%8E%E5%8F%B0/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                后台
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">2</span>
+              </a>
+            
+              <a href="/categories/NOSQL/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                NOSQL
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">1</span>
+              </a>
+            
+              <a href="/categories/%E5%90%8E%E5%8F%B0/JAVA/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                JAVA
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">2</span>
+              </a>
+            
+              <a href="/categories/NOSQL/MONGODB/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                MONGODB
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">1</span>
+              </a>
+            
+              <a href="/categories/%E5%AD%A6%E4%B9%A0/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                学习
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">1</span>
+              </a>
+            
+              <a href="/categories/%E8%87%AA%E5%BB%BA%E5%8C%85/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                自建包
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">2</span>
+              </a>
+            
+              <a href="/categories/%E5%AD%A6%E4%B9%A0/JAVA/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                JAVA
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">1</span>
+              </a>
+            
+              <a href="/categories/%E8%87%AA%E5%BB%BA%E5%8C%85/NODEJS/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                NODEJS
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">2</span>
+              </a>
+            
+              <a href="/categories/%E5%AD%A6%E4%B9%A0/JAVA/SPRING/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                SPRING
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">1</span>
+              </a>
+            
+          </div>
+        </div>
+      
+      
+        <div class="mdui-collapse-item ">
+          <div class="mdui-collapse-item-header mdui-list-item mdui-ripple mdui-ripple-white">
+            <i class="mdui-list-item-icon mdui-icon fa fa-tags mdui-text-center"></i>
+            <div class="mdui-list-item-content">标签</div>
+            <i class="mdui-collapse-item-arrow mdui-icon material-icons">&#xe5c5;</i>
+          </div>
+          <div class="mdui-collapse-item-body mdui-list">
+            
+              <a href="/tags/CORS/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                CORS
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">1</span>
+              </a>
+            
+              <a href="/tags/JAVA/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                JAVA
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">1</span>
+              </a>
+            
+              <a href="/tags/SPRING/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                SPRING
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">1</span>
+              </a>
+            
+              <a href="/tags/IOC%E6%B3%A8%E8%A7%A3/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                IOC注解
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">1</span>
+              </a>
+            
+              <a href="/tags/NOSQL/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                NOSQL
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">1</span>
+              </a>
+            
+              <a href="/tags/MONGODB/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                MONGODB
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">1</span>
+              </a>
+            
+              <a href="/tags/NODEJS/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                NODEJS
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">2</span>
+              </a>
+            
+              <a href="/tags/CRUD/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                CRUD
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">1</span>
+              </a>
+            
+              <a href="/tags/PRINTER/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                PRINTER
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">1</span>
+              </a>
+            
+              <a href="/tags/STRING/" class="mdui-list-item mdui-ripple mdui-ripple-white" style="display: flex">
+                STRING
+                <div style="flex-grow: 1;"></div>
+                <span class="theme-menu-badge new mdui-color-theme-accent" data-badge-caption="">1</span>
+              </a>
+            
+          </div>
+        </div>
+      
+      <div class="mdui-collapse-item ">
+        <div class="mdui-collapse-item-header mdui-list-item mdui-ripple mdui-ripple-white">
+          <i class="mdui-list-item-icon mdui-icon material-icons">&#xe916;</i>
+          <div class="mdui-list-item-content">年份</div>
+          <i class="mdui-collapse-item-arrow mdui-icon material-icons">&#xe5c5;</i>
+        </div>
+        <div class="mdui-collapse-item-body mdui-list">
+          
+          
+            <a href="/archives/2020/" class="mdui-list-item mdui-ripple">
+              2020
+            </a>
+          
+        </div>
+      </div>
+    </ul>
+  </ul>
+  
+</div>
+
+    <div class="theme-spacer"></div>
+    <!-- footer -->
+    <div class="theme-drawer__warpper__footer">
+  <div class="mdui-typo mdui-typo-caption-opacity">
+    Powered by <a href="http://hexo.io" target="_blank">Hexo</a>
+    <br />
+    Theme - <a href="//github.com/Halyul/hexo-theme-mdui" target="_blank">Halyul/MDUI</a>
+    <br />
+    <span>
+      Copyright ©
+      <span year></span>
+      PGambler
+    </span>
+    
+    
+      <br />
+      <span>
+        最后更新于: 11月 24, 2020
+      </span>
+    
+    
+  </div>
+</div>
+<script type="text/javascript">
+  var copyrightNow = new Date().getFullYear();
+  var textContent = document.querySelector('span[year]')
+  
+    textContent.textContent = copyrightNow
+  
+</script>
+
+  </div>
+</div>
+
+    <div id="top"></div>
+
+    
+<script src="/js/lightgallery.min.js"></script>
+
+
+    <div id="barba-wrapper">
+      <div class="barba-container"  data-namespace="post">
+        
+
+
+
+  
+<link rel="stylesheet" href="/css/prism/darcula.min.css">
+
+
+
+  
+<link rel="stylesheet" href="/css/prism/line-number.min.css">
+
+
+
+<div class="theme-post">
+  <div class="theme-post__background mdui-color-theme"></div>
+  <div class="theme-post__header mdui-color-theme">
+    <div class="theme-post__header__title mdui-text-truncate">
+      字符转换大字符
+    </div>
+    <div class="theme-spacer"></div>
+    <div class="theme-post__header__actions mdui-valign">
+      <div>
+        <span>编写时间：</span>
+        <span style="float: right">11月 24, 2020</span>
+        
+      </div>
+      
+      
+  <div class="theme-post__share">
+    <button class="mdui-btn mdui-ripple mdui-btn-icon" mdui-menu="{target: '#post-share-menu'}">
+      <i class="mdui-icon material-icons">&#xe80d;</i>
+    </button>
+
+    <ul class="mdui-menu" id="post-share-menu">
+
+      
+        <li class="mdui-menu-item">
+            <a href="https://www.facebook.com/sharer/sharer.php?u=https://github.com/PGambler/PGambler.github.io//2020/11/24/f8afecf942d8/index.html" target="_blank" class="mdui-ripple">
+                分享到Facebook
+            </a>
+        </li>
+      
+
+      
+        <li class="mdui-menu-item">
+            <a href="https://plus.google.com/share?url=https://github.com/PGambler/PGambler.github.io//2020/11/24/f8afecf942d8/index.html" target="_blank" class="mdui-ripple">
+                分享到Google+
+            </a>
+        </li>
+      
+
+      
+        <li class="mdui-menu-item">
+            <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://github.com/PGambler/PGambler.github.io//2020/11/24/f8afecf942d8/index.html&title=字符转换大字符" target="_blank" class="mdui-ripple">
+                分享到Linkedin
+            </a>
+        </li>
+      
+
+      
+
+      
+
+      
+        <li class="mdui-menu-item">
+            <a href="https://twitter.com/intent/tweet?text=字符转换大字符&url=https://github.com/PGambler/PGambler.github.io//2020/11/24/f8afecf942d8/index.html&via=PGambler" target="_blank" class="mdui-ripple">
+                分享到Twitter
+            </a>
+        </li>
+      
+
+      
+
+    </ul>
+  </div>
+
+
+    </div>
+  </div>
+  <div class="theme-post__warpper
+    
+  ">
+    <div class="theme-post__warpper__container">
+      <article class="mdui-card theme-post__card mdui-hoverable">
+        <section class="theme-post__card__warning">
+          这篇文章最后修改于
+          <span id="content-warning"></span>
+          天之前。
+          本页内容可能已经过时！
+        </section>
+        
+        
+          <section class="mdui-card-media">
+            <img src="/images/random/30.png"/>
+          </section>
+        
+        <section class="mdui-typo theme-post__card__content">
+          <h1 id="字符转换大字符"><a href="#字符转换大字符" class="headerlink" title="字符转换大字符"></a>字符转换大字符</h1><p>平时使用其他架构或者其他项目中，在控制台或日志文件中会出现由多个字符组成项目的名称，看起来有点意思。<br>但是我们平时开发项目想要这样打印项目名称时，会发现拼装繁琐，而且浪费时间。printBigChar能根据特定的规则得到我们想要的字符形状，目前支持26个字母（大小写）。</p>
+<a id="more"></a>
+<h2 id="大字符"><a href="#大字符" class="headerlink" title="大字符"></a>大字符</h2><p>由多个特定字符组成形成特定的形状所代表的字符</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><blockquote>
+<p>npm i print-big-char -save</p>
+</blockquote>
+<h2 id="node-js"><a href="#node-js" class="headerlink" title="node.js"></a>node.js</h2><figure class="highlight plain"><div class="mdui-table-fluid theme-post__card__table--flat"><table class="mdui-table mdui-table-hoverable "><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">const &#123; printToBigChar &#125; &#x3D; require(&quot;print-big-char&quot;);</span><br><span class="line">&#x2F;&#x2F;your project name</span><br><span class="line">printToBigChar(&quot;hello world&quot;);</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;你将在控制台获取到如下字符串</span><br><span class="line">&#x2F;&#x2F; H     H  EEEEEEE  L        L         OOOOO         W   WW   W   OOOOO   RRRRR    L        DDDD   </span><br><span class="line">&#x2F;&#x2F; H     H  E        L        L        O     O        W   WW   W  O     O  R     R  L        D    D </span><br><span class="line">&#x2F;&#x2F; HHHHHHH  EEEEEEE  L        L        O     O        W  W  W  W  O     O  RRRRR    L        D     D</span><br><span class="line">&#x2F;&#x2F; H     H  E        L        L        O     O        W W    W W  O     O  R   R    L        D    D </span><br><span class="line">&#x2F;&#x2F; H     H  EEEEEEE  LLLLLLL  LLLLLLL   OOOOO         WW      WW   OOOOO   R     R  LLLLLLL  DDDD   </span><br></pre></td></tr></table></div></figure>
+<h1 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h1><h2 id="大字符结构"><a href="#大字符结构" class="headerlink" title="大字符结构"></a>大字符结构</h2><figure class="highlight plain"><div class="mdui-table-fluid theme-post__card__table--flat"><table class="mdui-table mdui-table-hoverable "><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">const DEFAULT_CHAR &#x3D; &quot;*&quot;;   &#x2F;&#x2F;默认构造字符</span><br><span class="line">const DEFAULT_BIAS &#x3D; 0;     &#x2F;&#x2F;默认倾斜度</span><br><span class="line">const DEFAULT_COL_NUM &#x3D; 7;  &#x2F;&#x2F;默认一个大字符占用列数</span><br><span class="line">&#x2F;* super class *&#x2F;</span><br><span class="line">class BigChar &#123;</span><br><span class="line">  constructor() &#123;</span><br><span class="line">    this.char &#x3D; DEFAULT_CHAR;           &#x2F;&#x2F; 构造字符</span><br><span class="line">    this.bias &#x3D; DEFAULT_BIAS;           &#x2F;&#x2F; 倾斜度</span><br><span class="line">    this.col_num &#x3D; DEFAULT_COL_NUM;     &#x2F;&#x2F; 一个大字符占用列数</span><br><span class="line">    this.position &#x3D; [];                 &#x2F;&#x2F; 构造大字符坐标组</span><br><span class="line">    this.print_list &#x3D; [];               &#x2F;&#x2F; 构造大字符所用字符集</span><br><span class="line">  &#125;</span><br><span class="line">  toString() &#123;</span><br><span class="line">    return this.print_list &amp;&amp; this.print_list.join(&quot;\n&quot;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></div></figure>
+<p>一个大字符是由多个指定字符通过坐标组标记位置形成的形状，其占用列数由col_num指定、占用行数由position列表个数决定。<br>position是一个二维数组，元素可以是数字以及字符串：<br>如大字符“A”的定义：</p>
+<figure class="highlight plain"><div class="mdui-table-fluid theme-post__card__table--flat"><table class="mdui-table mdui-table-hoverable "><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;* char a|A *&#x2F;</span><br><span class="line">class BigChar_A extends BigChar &#123;</span><br><span class="line">  constructor() &#123;</span><br><span class="line">    super();</span><br><span class="line">    this.char &#x3D; &quot;A&quot;;</span><br><span class="line">    this.col_num &#x3D; 9;</span><br><span class="line">    this.position &#x3D; [</span><br><span class="line">      [4],</span><br><span class="line">      [3, 1],</span><br><span class="line">      [&quot;2(5)&quot;],</span><br><span class="line">      [1, 5],</span><br><span class="line">      [0, 7]</span><br><span class="line">    ];</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></div></figure>
+<p>其中<br>position[0][0]=&gt;4：表示该大字符第一行在拼装4个空格后再拼装1个指定字符；<br>position[1][0]=&gt;3：表示该大字符第二行在拼装3个空格后再拼装1个指定字符；<br>position[1][1]=&gt;1：表示该大字符第二行在已经拼装的字符串基础上再拼装1个空格之后再拼装1个指定字符；<br>position[2][0]=&gt;”2(5)”：表示该大字符第三行在拼装2个空格后再拼装5个指定字符；<br>…<br>最后形成大字符：</p>
+<figure class="highlight plain"><div class="mdui-table-fluid theme-post__card__table--flat"><table class="mdui-table mdui-table-hoverable "><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;     A    </span><br><span class="line">&#x2F;&#x2F;    A A   </span><br><span class="line">&#x2F;&#x2F;   AAAAA  </span><br><span class="line">&#x2F;&#x2F;  A     A </span><br><span class="line">&#x2F;&#x2F; A       A</span><br></pre></td></tr></table></div></figure>
+<h2 id="解析器"><a href="#解析器" class="headerlink" title="解析器"></a>解析器</h2><figure class="highlight plain"><div class="mdui-table-fluid theme-post__card__table--flat"><table class="mdui-table mdui-table-hoverable "><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> * 将对应数据结构解析成大字符.</span><br><span class="line"> * @param &#123;*&#125; source 目标对象</span><br><span class="line"> *&#x2F;</span><br><span class="line">function parse(source, option &#x3D; &#123;&#125;) &#123;</span><br><span class="line">  if (!source || !source.position || !source.position.length) return;</span><br><span class="line">  for (let i &#x3D; 0, j &#x3D; source.position.length; i &lt; j; i++) &#123;</span><br><span class="line">    let line_str &#x3D; &quot;&quot;, positions &#x3D; source.position[i];</span><br><span class="line">    positions.forEach(item &#x3D;&gt; &#123;</span><br><span class="line">      if (Number.isInteger(+item)) &#123;</span><br><span class="line">        line_str +&#x3D; getChar(+item) + source.char;</span><br><span class="line">      &#125; else if (&#x2F;^\d&#123;1,2&#125;\(\d&#123;1,2&#125;\)&#x2F;.test(item)) &#123;</span><br><span class="line">        line_str +&#x3D; getChar(+(item.match(&#x2F;\d&#123;1,2&#125;&#x2F;g)[0])) + getChar(+(item.match(&#x2F;\d&#123;1,2&#125;&#x2F;g)[1]), source.char);</span><br><span class="line">      &#125; else &#123;</span><br><span class="line">        throw new Error(&#96;the position &quot;[$&#123;item&#125;]&quot; in &quot;[$&#123;source.char&#125;]&quot; isn&#39;t vaild&#96;);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    line_str &#x3D; line_str.padEnd(source.col_num, option.space_char || &quot; &quot;);</span><br><span class="line">    source.print_list.push(line_str.slice(0, source.col_num));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></div></figure>
+<p>解析定义的结构拼装成大字符，根据坐标组形成字符形状，确保大字符所占列数统一，然后得到的大字符字符组存储于对象print_list数组中。</p>
+<h2 id="工厂"><a href="#工厂" class="headerlink" title="工厂"></a>工厂</h2><figure class="highlight plain"><div class="mdui-table-fluid theme-post__card__table--flat"><table class="mdui-table mdui-table-hoverable "><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">const _cache &#x3D; &#123;&#125;</span><br><span class="line"></span><br><span class="line">class BigCharFactory &#123;</span><br><span class="line">  register(builder) &#123;</span><br><span class="line">    ...</span><br><span class="line">  &#125;</span><br><span class="line">  create(char, option) &#123;</span><br><span class="line">    ...</span><br><span class="line">    return bigChar;</span><br><span class="line">  &#125;</span><br><span class="line">  build(char, option) &#123;</span><br><span class="line">    ...</span><br><span class="line">    return res;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">bigCharFactory &#x3D; new BigCharFactory();</span><br><span class="line">module.exports &#x3D; bigCharFactory;</span><br></pre></td></tr></table></div></figure>
+<p>工厂提供大字符结构的注册，大字符构建对象的创建，以及维护大字符构建对象的单例。工厂会根据某一映射规则将要形成大字符的字符映射到对象的构建结构上，然后创建对象并返回。当我们想要的字符在printBigChar中没有时，我们可以通过自定义大字符结构并注册到系统中，从而使用。</p>
+<ul>
+<li><span id = "register">注册（扩展）</span><figure class="highlight plain"><div class="mdui-table-fluid theme-post__card__table--flat"><table class="mdui-table mdui-table-hoverable "><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">const &#123; printToBigChar, BigChar, bigCharFactory  &#125; &#x3D; require(&quot;print-big-char&quot;);</span><br><span class="line">class BigChar_2 extends BigChar &#123;</span><br><span class="line">  constructor() &#123;</span><br><span class="line">    super();</span><br><span class="line">    this.char &#x3D; &quot;2&quot;;</span><br><span class="line">    this.position &#x3D; [</span><br><span class="line">      [&quot;0(7)&quot;],</span><br><span class="line">      [6],</span><br><span class="line">      [&quot;0(7)&quot;],</span><br><span class="line">      [0],</span><br><span class="line">      [&quot;0(7)&quot;]</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">bigCharFactory.register(BigChar_2);</span><br><span class="line">printToBigChar(&quot;2&quot;);</span><br><span class="line">&#x2F;&#x2F;你将在控制台获取到如下字符串</span><br><span class="line">&#x2F;&#x2F; 2222222</span><br><span class="line">&#x2F;&#x2F;       2</span><br><span class="line">&#x2F;&#x2F; 2222222</span><br><span class="line">&#x2F;&#x2F; 2      </span><br><span class="line">&#x2F;&#x2F; 2222222</span><br><span class="line"></span><br></pre></td></tr></table></div></figure>
+<blockquote>
+<p>注意：所有大字符结构定义必须继承于BigChar以及以BigChar_开头，才能正确创建对象。（这里将会有一个问题，就是当需要定义像问号这样的符号时需要额外的映射器才能正确创建大字符对象）</p>
+</blockquote>
+<h2 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h2><figure class="highlight plain"><div class="mdui-table-fluid theme-post__card__table--flat"><table class="mdui-table mdui-table-hoverable "><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">let option &#x3D; &#123;</span><br><span class="line">  space_num: Number,    &#x2F;&#x2F;大字符间的间隙，默认：2</span><br><span class="line">  space_char: String,   &#x2F;&#x2F;大字符间间隙的填充字符，默认空格</span><br><span class="line">  align: String,        &#x2F;&#x2F;当多个大字符占行数不一致时，所采用的对齐方式center|top|bottom，默认：center</span><br><span class="line">  global_char: String,  &#x2F;&#x2F;全局大字符字符填充字符，默认：无</span><br><span class="line">  bias: Number,         &#x2F;&#x2F;全局倾斜度，默认：无</span><br><span class="line">  A: Object,            &#x2F;&#x2F;指定大字符构造参数，这将覆盖原本的字符定义</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></div></figure>
+示例：</li>
+<li>打印间隙为4间隙填充为*号的大字符<figure class="highlight plain"><div class="mdui-table-fluid theme-post__card__table--flat"><table class="mdui-table mdui-table-hoverable "><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">const &#123; printToBigChar &#125; &#x3D; require(&quot;print-big-char&quot;);</span><br><span class="line">let printStr &#x3D; &quot;hello world&quot;;</span><br><span class="line">let option &#x3D; &#123;</span><br><span class="line">  space_num: 4,    &#x2F;&#x2F;大字符间的间隙，默认：2</span><br><span class="line">  space_char: &quot;*&quot;,   &#x2F;&#x2F;大字符间间隙的填充字符，默认空格</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">printToBigChar(printStr, option);</span><br><span class="line">&#x2F;&#x2F;你将在控制台获取到如下字符串（）</span><br><span class="line">&#x2F;&#x2F;H     H****EEEEEEE****L      ****L      **** OOOOO ****    ****W   WW   W**** OOOOO ****RRRRR  ****L      ****DDDD   </span><br><span class="line">&#x2F;&#x2F;H     H****E      ****L      ****L      ****O     O****    ****W   WW   W****O     O****R     R****L      ****D    D </span><br><span class="line">&#x2F;&#x2F;HHHHHHH****EEEEEEE****L      ****L      ****O     O****    ****W  W  W  W****O     O****RRRRR  ****L      ****D     D</span><br><span class="line">&#x2F;&#x2F;H     H****E      ****L      ****L      ****O     O****    ****W W    W W****O     O****R   R  ****L      ****D    D </span><br><span class="line">&#x2F;&#x2F;H     H****EEEEEEE****LLLLLLL****LLLLLLL**** OOOOO ****    ****WW      WW**** OOOOO ****R     R****LLLLLLL****DDDD   </span><br></pre></td></tr></table></div></figure>
+<blockquote>
+<p>注意：空格将被解析为默认大字符</p>
+</blockquote>
+</li>
+<li>打印成全由*号形成的大字符<figure class="highlight plain"><div class="mdui-table-fluid theme-post__card__table--flat"><table class="mdui-table mdui-table-hoverable "><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">const &#123; printToBigChar &#125; &#x3D; require(&quot;print-big-char&quot;);</span><br><span class="line"></span><br><span class="line">let printStr &#x3D; &quot;hello world&quot;;</span><br><span class="line">let option &#x3D; &#123;</span><br><span class="line">  global_char: &quot;*&quot;,  &#x2F;&#x2F;全局大字符字符填充字符，默认：无</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">printToBigChar(printStr, option);</span><br><span class="line">&#x2F;&#x2F;你将在控制台获取到如下字符串</span><br><span class="line">&#x2F;&#x2F;*     *  *******  *        *         *****         *   **   *   *****   *****    *        ****   </span><br><span class="line">&#x2F;&#x2F;*     *  *        *        *        *     *        *   **   *  *     *  *     *  *        *    * </span><br><span class="line">&#x2F;&#x2F;*******  *******  *        *        *     *        *  *  *  *  *     *  *****    *        *     *</span><br><span class="line">&#x2F;&#x2F;*     *  *        *        *        *     *        * *    * *  *     *  *   *    *        *    * </span><br><span class="line">&#x2F;&#x2F;*     *  *******  *******  *******   *****         **      **   *****   *     *  *******  ****   </span><br></pre></td></tr></table></div></figure></li>
+<li>改变L的组成字符为=号<figure class="highlight plain"><div class="mdui-table-fluid theme-post__card__table--flat"><table class="mdui-table mdui-table-hoverable "><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">const &#123; printToBigChar &#125; &#x3D; require(&quot;print-big-char&quot;);</span><br><span class="line">let printStr &#x3D; &quot;hello world&quot;;</span><br><span class="line">let option &#x3D; &#123;</span><br><span class="line">  L: &#123; char: &quot;&#x3D;&quot; &#125;,  &#x2F;&#x2F;指定大字符构造参数，这将覆盖原本的字符定义</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">printToBigChar(printStr, option);</span><br><span class="line">&#x2F;&#x2F;你将在控制台获取到如下字符串</span><br><span class="line">&#x2F;&#x2F;H     H  EEEEEEE  &#x3D;        &#x3D;         OOOOO         W   WW   W   OOOOO   RRRRR    &#x3D;        DDDD   </span><br><span class="line">&#x2F;&#x2F;H     H  E        &#x3D;        &#x3D;        O     O        W   WW   W  O     O  R     R  &#x3D;        D    D </span><br><span class="line">&#x2F;&#x2F;HHHHHHH  EEEEEEE  &#x3D;        &#x3D;        O     O        W  W  W  W  O     O  RRRRR    &#x3D;        D     D</span><br><span class="line">&#x2F;&#x2F;H     H  E        &#x3D;        &#x3D;        O     O        W W    W W  O     O  R   R    &#x3D;        D    D </span><br><span class="line">&#x2F;&#x2F;H     H  EEEEEEE  &#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;  &#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;   OOOOO         WW      WW   OOOOO   R     R  &#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;  DDDD   </span><br></pre></td></tr></table></div></figure></li>
+<li>打印全由*号形成的大字符，但L为=号<figure class="highlight plain"><div class="mdui-table-fluid theme-post__card__table--flat"><table class="mdui-table mdui-table-hoverable "><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">const &#123; printToBigChar &#125; &#x3D; require(&quot;print-big-char&quot;);</span><br><span class="line">let printStr &#x3D; &quot;hello world&quot;;</span><br><span class="line">let option &#x3D; &#123;</span><br><span class="line">  global_char: &quot;*&quot;,  &#x2F;&#x2F;全局大字符字符填充字符，默认：无</span><br><span class="line">  L: &#123; char: &quot;&#x3D;&quot; &#125;,  &#x2F;&#x2F;指定大字符构造参数，这将覆盖原本的字符定义</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">printToBigChar(printStr, option);</span><br><span class="line">&#x2F;&#x2F;你将在控制台获取到如下字符串</span><br><span class="line">&#x2F;&#x2F;*     *  *******  &#x3D;        &#x3D;         *****         *   **   *   *****   *****    &#x3D;        ****   </span><br><span class="line">&#x2F;&#x2F;*     *  *        &#x3D;        &#x3D;        *     *        *   **   *  *     *  *     *  &#x3D;        *    * </span><br><span class="line">&#x2F;&#x2F;*******  *******  &#x3D;        &#x3D;        *     *        *  *  *  *  *     *  *****    &#x3D;        *     *</span><br><span class="line">&#x2F;&#x2F;*     *  *        &#x3D;        &#x3D;        *     *        * *    * *  *     *  *   *    &#x3D;        *    * </span><br><span class="line">&#x2F;&#x2F;*     *  *******  &#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;  &#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;   *****         **      **   *****   *     *  &#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;  ****   </span><br></pre></td></tr></table></div></figure>
+<blockquote>
+<p>此时参数中的字符定义优先级更高</p>
+</blockquote>
+</li>
+<li>打印居中对齐的大字符（默认）<figure class="highlight plain"><div class="mdui-table-fluid theme-post__card__table--flat"><table class="mdui-table mdui-table-hoverable "><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">const &#123; printToBigChar &#125; &#x3D; require(&quot;print-big-char&quot;);</span><br><span class="line">let printStr &#x3D; &quot;hello world&quot;;</span><br><span class="line">let option &#x3D; &#123;</span><br><span class="line">  align: &quot;center&quot;,</span><br><span class="line">  O: &#123;</span><br><span class="line">    position: [</span><br><span class="line">      [&quot;1(5)&quot;],</span><br><span class="line">      [0, 5],</span><br><span class="line">      [0, 5],</span><br><span class="line">      [0, 5],</span><br><span class="line">      [0, 5],</span><br><span class="line">      [0, 5],</span><br><span class="line">      [&quot;1(5)&quot;]</span><br><span class="line">    ]</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">printToBigChar(printStr, option);</span><br><span class="line">&#x2F;&#x2F;你将在控制台获取到如下字符串</span><br><span class="line">&#x2F;&#x2F;                                     OOOOO                      OOOOO                            </span><br><span class="line">&#x2F;&#x2F;H     H  EEEEEEE  L        L        O     O        W   WW   W  O     O  RRRRR    L        DDDD   </span><br><span class="line">&#x2F;&#x2F;H     H  E        L        L        O     O        W   WW   W  O     O  R     R  L        D    D </span><br><span class="line">&#x2F;&#x2F;HHHHHHH  EEEEEEE  L        L        O     O        W  W  W  W  O     O  RRRRR    L        D     D</span><br><span class="line">&#x2F;&#x2F;H     H  E        L        L        O     O        W W    W W  O     O  R   R    L        D    D </span><br><span class="line">&#x2F;&#x2F;H     H  EEEEEEE  LLLLLLL  LLLLLLL  O     O        WW      WW  O     O  R     R  LLLLLLL  DDDD   </span><br><span class="line">&#x2F;&#x2F;                                     OOOOO                      OOOOO                            </span><br></pre></td></tr></table></div></figure></li>
+<li>打印顶点对齐的大字符<figure class="highlight plain"><div class="mdui-table-fluid theme-post__card__table--flat"><table class="mdui-table mdui-table-hoverable "><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">const &#123; printToBigChar &#125; &#x3D; require(&quot;print-big-char&quot;);</span><br><span class="line"></span><br><span class="line">let printStr &#x3D; &quot;hello world&quot;;</span><br><span class="line">let option &#x3D; &#123;</span><br><span class="line">  align: &quot;top&quot;,</span><br><span class="line">  O: &#123;</span><br><span class="line">    position: [</span><br><span class="line">      [&quot;1(5)&quot;],</span><br><span class="line">      [0, 5],</span><br><span class="line">      [0, 5],</span><br><span class="line">      [0, 5],</span><br><span class="line">      [0, 5],</span><br><span class="line">      [0, 5],</span><br><span class="line">      [&quot;1(5)&quot;]</span><br><span class="line">    ]</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">printToBigChar(printStr, option);</span><br><span class="line">&#x2F;&#x2F;你将在控制台获取到如下字符串</span><br><span class="line">&#x2F;&#x2F;H     H  EEEEEEE  L        L         OOOOO         W   WW   W   OOOOO   RRRRR    L        DDDD   </span><br><span class="line">&#x2F;&#x2F;H     H  E        L        L        O     O        W   WW   W  O     O  R     R  L        D    D </span><br><span class="line">&#x2F;&#x2F;HHHHHHH  EEEEEEE  L        L        O     O        W  W  W  W  O     O  RRRRR    L        D     D</span><br><span class="line">&#x2F;&#x2F;H     H  E        L        L        O     O        W W    W W  O     O  R   R    L        D    D </span><br><span class="line">&#x2F;&#x2F;H     H  EEEEEEE  LLLLLLL  LLLLLLL  O     O        WW      WW  O     O  R     R  LLLLLLL  DDDD   </span><br><span class="line">&#x2F;&#x2F;                                    O     O                    O     O                           </span><br><span class="line">&#x2F;&#x2F;                                     OOOOO                      OOOOO                            </span><br></pre></td></tr></table></div></figure></li>
+<li>打印底部对齐的大字符<figure class="highlight plain"><div class="mdui-table-fluid theme-post__card__table--flat"><table class="mdui-table mdui-table-hoverable "><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">const &#123; printToBigChar &#125; &#x3D; require(&quot;print-big-char&quot;);</span><br><span class="line"></span><br><span class="line">let printStr &#x3D; &quot;hello world&quot;;</span><br><span class="line">let option &#x3D; &#123;</span><br><span class="line">  align: &quot;bottom&quot;,</span><br><span class="line">  O: &#123;</span><br><span class="line">    position: [</span><br><span class="line">      [&quot;1(5)&quot;],</span><br><span class="line">      [0, 5],</span><br><span class="line">      [0, 5],</span><br><span class="line">      [0, 5],</span><br><span class="line">      [0, 5],</span><br><span class="line">      [0, 5],</span><br><span class="line">      [&quot;1(5)&quot;]</span><br><span class="line">    ]</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">printToBigChar(printStr, option);</span><br><span class="line">&#x2F;&#x2F;你将在控制台获取到如下字符串</span><br><span class="line">&#x2F;&#x2F;                                     OOOOO                      OOOOO                            </span><br><span class="line">&#x2F;&#x2F;                                    O     O                    O     O                           </span><br><span class="line">&#x2F;&#x2F;H     H  EEEEEEE  L        L        O     O        W   WW   W  O     O  RRRRR    L        DDDD   </span><br><span class="line">&#x2F;&#x2F;H     H  E        L        L        O     O        W   WW   W  O     O  R     R  L        D    D </span><br><span class="line">&#x2F;&#x2F;HHHHHHH  EEEEEEE  L        L        O     O        W  W  W  W  O     O  RRRRR    L        D     D</span><br><span class="line">&#x2F;&#x2F;H     H  E        L        L        O     O        W W    W W  O     O  R   R    L        D    D </span><br><span class="line">&#x2F;&#x2F;H     H  EEEEEEE  LLLLLLL  LLLLLLL   OOOOO         WW      WW   OOOOO   R     R  LLLLLLL  DDDD   </span><br></pre></td></tr></table></div></figure></li>
+<li>倾斜度（暂不支持）<br>略<h2 id="扩展"><a href="#扩展" class="headerlink" title="扩展"></a>扩展</h2>参考<a href="#register">工厂注册</a><h2 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h2><del>目前仅支持26个字母的大写（小写也会转换为大写），后续会加入其他字符包括标点符号，也欢迎加入新的字符定义</del><h2 id="更新日志"><a href="#更新日志" class="headerlink" title="更新日志"></a>更新日志</h2><div class="mdui-table-fluid theme-post__card__table--flat"><table class="mdui-table mdui-table-hoverable ">
+<tr>
+<td>时间</td>
+<td>版本</td>
+<td>内容</td>
+</tr>
+<tr>
+<td>2019/12/26</td>
+<td>1.1.5</td>
+<td>
+  <ol>
+    <li>集成mocha测试</li>
+    <li>集成webpack打包应用</li>
+  </ol>
+</td>
+</tr>
+<tr>
+<td>2019/12/18</td>
+<td>1.0.2</td>
+<td>
+  <ol>
+    <li>增加特殊字符支持，增加字符与定义结构映射表</li>
+    <li>修复新的打印引用旧的定义对象</li>
+  </ol>
+</td>
+</tr>
+</table></div>
+
+</li>
+</ul>
+<h2 id="免责声明"><a href="#免责声明" class="headerlink" title="免责声明"></a>免责声明</h2><p>本工具仅用于学习交流使用，禁止用于商业用途，使用本工具所造成的的后果由使用者承担！<br>有疑问请 mail to: <a href="mailto:xfqing_mid@163.com">xfqing_mid@163.com</a></p>
+
+        </section>
+
+        
+          <section class="theme-post__card__license mdui-typo">
+            <span>
+              本文许可协议：
+              
+                <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">CC BY-NC-SA 4.0</a>
+              
+            </span>
+            <br />
+            <span>本文永久链接：<a href="https://github.com/PGambler/PGambler.github.io/2020/11/24/f8afecf942d8/">https://github.com/PGambler/PGambler.github.io/2020/11/24/f8afecf942d8/</a></span>
+            
+              <br />
+              <span>本文Markdown：<a href="https://github.com/PGambler/PGambler.github.io/2020/11/24/f8afecf942d8/字符转换大字符.md">https://github.com/PGambler/PGambler.github.io/2020/11/24/f8afecf942d8/字符转换大字符.md</a></span>
+            
+          </section>
+        
+
+        
+          <section class="mdui-card-actions theme-post__card__actions">
+            
+              <button class="mdui-btn mdui-btn-icon mdui-btn-dense mdui-ripple  mdui-color-red" mdui-tooltip="{content: '打赏', position: 'right'}" mdui-dialog="{target: '#donateDialog'}">
+                <i class="mdui-icon fa fa-beer"></i>
+              </button>
+            
+            <div class="theme-spacer"></div>
+            
+              <div class="mdui-chip theme-post__card__chip--bg theme-post__card__chip--margin">
+                <span class="mdui-chip-icon theme-post__card__chip--bg"><i class="mdui-icon mdui-text-color-black-icon material-icons">&#xe149;</i></span>
+              </div>
+              <div class="mdui-typo">
+                
+                  <a href="/categories/%E8%87%AA%E5%BB%BA%E5%8C%85/">
+                    <span>自建包</span>
+                  </a>
+                
+                  <a href="/categories/%E8%87%AA%E5%BB%BA%E5%8C%85/NODEJS/">
+                    <span>NODEJS</span>
+                  </a>
+                
+              </div>
+            
+            
+              <div class="mdui-chip theme-post__card__chip--bg theme-post__card__chip--margin">
+                <span class="mdui-chip-icon theme-post__card__chip--bg"><i class="mdui-icon mdui-text-color-black-icon fa fa-tags"></i></span>
+              </div>
+              <div class="mdui-typo">
+                
+                  <a href="/tags/NODEJS/">
+                    <span>NODEJS</span>
+                  </a>
+                
+                  <a href="/tags/PRINTER/">
+                    <span>PRINTER</span>
+                  </a>
+                
+                  <a href="/tags/STRING/">
+                    <span>STRING</span>
+                  </a>
+                
+              </div>
+            
+          </section>
+        
+
+        
+          
+            <script type="text/javascript">
+              themeRuntime.commentRest.function = function (newIdentifier, newUrl, newTitle) {
+                return
+              }
+            </script>
+          
+        
+      </article>
+      
+        <div class="mdui-color-theme theme-post__toc">
+          <html><head></head><body><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E5%AD%97%E7%AC%A6%E8%BD%AC%E6%8D%A2%E5%A4%A7%E5%AD%97%E7%AC%A6" data-href="#%E5%AD%97%E7%AC%A6%E8%BD%AC%E6%8D%A2%E5%A4%A7%E5%AD%97%E7%AC%A6"><span class="toc-number"></span> <span class="toc-text">1. &#x5B57;&#x7B26;&#x8F6C;&#x6362;&#x5927;&#x5B57;&#x7B26;</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E5%A4%A7%E5%AD%97%E7%AC%A6" data-href="#%E5%A4%A7%E5%AD%97%E7%AC%A6"><span class="toc-number"></span> <span class="toc-text">1.1. &#x5927;&#x5B57;&#x7B26;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E4%BD%BF%E7%94%A8" data-href="#%E4%BD%BF%E7%94%A8"><span class="toc-number"></span> <span class="toc-text">1.2. &#x4F7F;&#x7528;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#node-js" data-href="#node-js"><span class="toc-number"></span> <span class="toc-text">1.3. node.js</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E8%AF%B4%E6%98%8E" data-href="#%E8%AF%B4%E6%98%8E"><span class="toc-number"></span> <span class="toc-text">2. &#x8BF4;&#x660E;</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E5%A4%A7%E5%AD%97%E7%AC%A6%E7%BB%93%E6%9E%84" data-href="#%E5%A4%A7%E5%AD%97%E7%AC%A6%E7%BB%93%E6%9E%84"><span class="toc-number"></span> <span class="toc-text">2.1. &#x5927;&#x5B57;&#x7B26;&#x7ED3;&#x6784;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E8%A7%A3%E6%9E%90%E5%99%A8" data-href="#%E8%A7%A3%E6%9E%90%E5%99%A8"><span class="toc-number"></span> <span class="toc-text">2.2. &#x89E3;&#x6790;&#x5668;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E5%B7%A5%E5%8E%82" data-href="#%E5%B7%A5%E5%8E%82"><span class="toc-number"></span> <span class="toc-text">2.3. &#x5DE5;&#x5382;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E5%8F%82%E6%95%B0" data-href="#%E5%8F%82%E6%95%B0"><span class="toc-number"></span> <span class="toc-text">2.4. &#x53C2;&#x6570;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E6%89%A9%E5%B1%95" data-href="#%E6%89%A9%E5%B1%95"><span class="toc-number"></span> <span class="toc-text">2.5. &#x6269;&#x5C55;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E4%BC%98%E5%8C%96" data-href="#%E4%BC%98%E5%8C%96"><span class="toc-number"></span> <span class="toc-text">2.6. &#x4F18;&#x5316;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97" data-href="#%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97"><span class="toc-number"></span> <span class="toc-text">2.7. &#x66F4;&#x65B0;&#x65E5;&#x5FD7;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E5%85%8D%E8%B4%A3%E5%A3%B0%E6%98%8E" data-href="#%E5%85%8D%E8%B4%A3%E5%A3%B0%E6%98%8E"><span class="toc-number"></span> <span class="toc-text">2.8. &#x514D;&#x8D23;&#x58F0;&#x660E;</span></a></li></ol></li></ol></body></html>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="theme-spacer"></div>
+
+  
+    <div class="mdui-color-theme theme-post__toc-fab">
+  <button class="mdui-fab mdui-color-theme-accent mdui-ripple mdui-fab-fixed mdui-hidden-md-up" mdui-menu="{target: '#toc-fab-menu', fixed: true}" id="toc-fab">
+    <i class="mdui-icon material-icons">&#xe242;</i>
+  </button>
+  <ul class="mdui-menu mdui-typo theme-post__toc-fab__menu" id="toc-fab-menu" style="padding: 8px;max-height: 80%">
+    <html><head></head><body><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E5%AD%97%E7%AC%A6%E8%BD%AC%E6%8D%A2%E5%A4%A7%E5%AD%97%E7%AC%A6" data-href="#%E5%AD%97%E7%AC%A6%E8%BD%AC%E6%8D%A2%E5%A4%A7%E5%AD%97%E7%AC%A6"><span class="toc-number"></span> <span class="toc-text">1. &#x5B57;&#x7B26;&#x8F6C;&#x6362;&#x5927;&#x5B57;&#x7B26;</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E5%A4%A7%E5%AD%97%E7%AC%A6" data-href="#%E5%A4%A7%E5%AD%97%E7%AC%A6"><span class="toc-number"></span> <span class="toc-text">1.1. &#x5927;&#x5B57;&#x7B26;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E4%BD%BF%E7%94%A8" data-href="#%E4%BD%BF%E7%94%A8"><span class="toc-number"></span> <span class="toc-text">1.2. &#x4F7F;&#x7528;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#node-js" data-href="#node-js"><span class="toc-number"></span> <span class="toc-text">1.3. node.js</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E8%AF%B4%E6%98%8E" data-href="#%E8%AF%B4%E6%98%8E"><span class="toc-number"></span> <span class="toc-text">2. &#x8BF4;&#x660E;</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E5%A4%A7%E5%AD%97%E7%AC%A6%E7%BB%93%E6%9E%84" data-href="#%E5%A4%A7%E5%AD%97%E7%AC%A6%E7%BB%93%E6%9E%84"><span class="toc-number"></span> <span class="toc-text">2.1. &#x5927;&#x5B57;&#x7B26;&#x7ED3;&#x6784;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E8%A7%A3%E6%9E%90%E5%99%A8" data-href="#%E8%A7%A3%E6%9E%90%E5%99%A8"><span class="toc-number"></span> <span class="toc-text">2.2. &#x89E3;&#x6790;&#x5668;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E5%B7%A5%E5%8E%82" data-href="#%E5%B7%A5%E5%8E%82"><span class="toc-number"></span> <span class="toc-text">2.3. &#x5DE5;&#x5382;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E5%8F%82%E6%95%B0" data-href="#%E5%8F%82%E6%95%B0"><span class="toc-number"></span> <span class="toc-text">2.4. &#x53C2;&#x6570;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E6%89%A9%E5%B1%95" data-href="#%E6%89%A9%E5%B1%95"><span class="toc-number"></span> <span class="toc-text">2.5. &#x6269;&#x5C55;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E4%BC%98%E5%8C%96" data-href="#%E4%BC%98%E5%8C%96"><span class="toc-number"></span> <span class="toc-text">2.6. &#x4F18;&#x5316;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97" data-href="#%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97"><span class="toc-number"></span> <span class="toc-text">2.7. &#x66F4;&#x65B0;&#x65E5;&#x5FD7;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link mdui-list-item mdui-ripple theme-post__toc__content__link" href="#%E5%85%8D%E8%B4%A3%E5%A3%B0%E6%98%8E" data-href="#%E5%85%8D%E8%B4%A3%E5%A3%B0%E6%98%8E"><span class="toc-number"></span> <span class="toc-text">2.8. &#x514D;&#x8D23;&#x58F0;&#x660E;</span></a></li></ol></li></ol></body></html>
+  </ul>
+</div>
+
+  
+
+  
+    <div class="theme-post__pagination mdui-color-theme">
+  
+    <div class="theme-post__pagination__prev mdui-ripple mdui-valign">
+      
+        <a href="/2020/11/24/3bb86e27f71c/" class="theme-post__pagination__prev__content mdui-text-left">
+        
+        <div>
+          <i class="mdui-icon material-icons mdui-text-center">&#xe5cb;</i>
+          <span class="mdui-typo-body-2-opacity mdui-text-center">新的文章</span>
+        </div>
+        <div class="mdui-typo-title mdui-text-truncate">
+          前后端分离vue+springboot所遇到的跨域问题
+        </div>
+      </a>
+    </div>
+  
+
+  
+    <div class="theme-post__pagination__next mdui-ripple mdui-valign">
+      
+        <a href="/2020/11/24/e8db45d02017/" class="theme-post__pagination__next__content mdui-text-right">
+        
+        <div>
+          <span class="mdui-typo-body-2-opacity mdui-text-center">旧的文章</span>
+          <i class="mdui-icon material-icons mdui-text-center">&#xe5cc;</i>
+        </div>
+        <div class="mdui-typo-title mdui-text-truncate">
+          一个mongoDB的CRUD模块
+        </div>
+      </a>
+    </div>
+    
+</div>
+
+  
+
+  
+    <div class="mdui-dialog" id="donateDialog">
+      <div class="mdui-dialog-title">打赏</div>
+      <div class="mdui-dialog-content">
+        <div class="mdui-list">
+          
+            <a href="/img/avatar.png" title="wechat" class="mdui-list-item mdui-ripple" target="_blank">
+              
+                <i class="mdui-list-item-icon mdui-icon fa fa-wechat mdui-text-center"></i>&emsp;
+              
+              
+              
+              wechat
+            </a>
+          
+            <a href="https://paypal.com" title="paypay" class="mdui-list-item mdui-ripple" target="_blank">
+              
+                <i class="mdui-list-item-icon mdui-icon fa fa-paypal mdui-text-center"></i>&emsp;
+              
+              
+              
+              paypay
+            </a>
+          
+        </div>
+      </div>
+      <div class="mdui-dialog-actions">
+        <button class="mdui-btn mdui-ripple mdui-ripple" mdui-dialog-close>不要</button>
+      </div>
+    </div>
+  
+</div>
+<script type="text/javascript">
+  themeRuntime.scriptsMap.post = [];
+  if (document.querySelector('.theme-post__toc-fab__menu > ol') !== null && document.querySelector('.theme-post__toc > ol') !== null) {
+    tocHighlight()
+    function tocHighlight() {
+      var timer;
+      function doWork() {
+        listens.forEach(function (value, index) {
+          value[1]();
+          value[0].classList.remove("mdui-list-item-active");
+        })
+        let actionToc = (listens[listens.reduce(function (r, v, index) {
+          if (v[2] == true) {
+            return index;
+          } else return r;
+        }, undefined)] || [])[0] || listens[0][0];
+        actionToc.classList.add("mdui-list-item-active");
+        if (actionToc.getClientRects().length == 0) return;
+        showToc(actionToc);
+      }
+      function showToc(toc) {
+        let offsetTop = toc.getClientRects()[0].top - cardToc.getClientRects()[0].top - 40;
+        let offsetBottom = toc.getClientRects()[0].bottom - cardToc.getClientRects()[0].bottom + 40;
+        let offset = 0;
+        if (offsetTop < 0) offset = offsetTop;
+        if (offsetBottom > 0) offset = offsetBottom;
+        var targetTop = Math.max(0, Math.min(cardToc.scrollTop + offset, toclist.offsetHeight - cardToc.offsetHeight));
+        clearInterval(timer);
+        timer = setInterval(function () {
+          var now = cardToc.scrollTop;
+          var speed = (targetTop - now) / 10;
+          speed = speed > 0 ? Math.ceil(speed) : Math.floor(speed);
+          if (Math.abs(now - targetTop) < 1) {
+            clearInterval(timer);
+          }
+          cardToc.scrollTop = now + speed;
+        }, 30);
+      }
+      var listens = [];
+      var cardToc = document.querySelector('.theme-post__toc');
+      var links = cardToc.querySelectorAll(".theme-post__toc__content__link");
+      var toclist = document.querySelector(".theme-post__toc > ol");
+      Array.prototype.forEach.call(links, function (value, index) {
+        var id = (value.getAttribute("href") || "#").slice(1);
+        var element = document.getElementById(id);
+        listens.push([value, function () {
+          var readed = false;
+          var scrollTop = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop;
+          if (element && (element.offsetTop <= scrollTop + element.clientHeight + 64)) {
+            readed = true;
+          } else {
+            readed = false;
+          }
+          listens[index][2] = readed;
+        }, false])
+      })
+      doWork();
+      window.addEventListener("scroll", doWork)
+      var listener = {
+        function: doWork,
+        event: 'scroll',
+        el: window,
+        removed: false
+      }
+      themeRuntime.scriptsMap.post.push(listener)
+    }
+  }
+</script>
+
+<script type="text/javascript">
+  (function () {
+    var postLastModifiedDate = 1606219821000
+    var today = (new Date()).getTime()
+    var difference = Math.floor((today - postLastModifiedDate) / (24 * 60 * 60 * 1000))
+    if (difference >= 100) {
+      document.querySelector('.theme-post__card__warning').style.display = 'block'
+      document.querySelector('#content-warning').textContent = difference
+    }
+  })();
+</script>
+
+<script type="text/javascript">
+  var images = document.querySelectorAll('.theme-post__card__content img')
+  for (i = 0; i < images.length; i++) {
+    //console.log('image added', i)
+    images[i].addEventListener("click", openLG);
+    var listener = {
+      function: openLG,
+      event: 'click',
+      el: images[i],
+      removed: false
+    }
+    themeRuntime.scriptsMap.post.push(listener)
+  }
+  function openLG() {
+    var img_src = this.getAttribute('src');
+    var img_alt = this.getAttribute('alt');
+    lightGallery(this, {
+      dynamic: true,
+      counter: false,
+      dynamicEl: [{
+        "src": img_src,
+        'subHtml': "<span author>PGambler</span><div descr>" + img_alt + "</div>"
+      }],
+    });
+  }
+</script>
+
+
+
+      </div>
+    </div>
+  </main>
+
+  <div id="outdated" style="z-index: 9999;">
+    <h6>你的浏览器已经过气辣！</h6>
+    <p>赶紧升级浏览器来访问本站吧！<a id="btnUpdateBrowser" target="_blank" rel="noopener" href="http://outdatedbrowser.com/">现在就去</a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="关闭">&times;</a></p>
+  </div>
+  <!-- import js -->
+
+
+  
+<script src="/js/outdatedbrowser.min.js"></script>
+
+
+
+
+  
+    
+<script src="/js/js.barba.min.js"></script>
+
+    <script type="text/javascript">
+      Barba.Utils.errorPageUrl = '/404.html';
+    </script>
+  
+
+
+<!-- theme js -->
+<script type="text/javascript">
+  (function() {
+    var appbarTopFlag = false;
+    var appbarEl = document.querySelector('.theme-appbar');
+    function appbarShadow() {
+      var bodyScrolled = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop;
+      if (bodyScrolled > 0 && !appbarTopFlag) {
+        appbarEl.classList.add('theme-appbar--shadow');
+        appbarTopFlag = true;
+      } else if (bodyScrolled === 0 && appbarTopFlag) {
+        appbarEl.classList.remove('theme-appbar--shadow');
+        appbarTopFlag = false;
+      }
+    }
+    appbarShadow()
+    window.addEventListener('scroll', appbarShadow);
+  })();
+  (function() {
+    function detechTheme() {
+      var modeFlag = localStorage.getItem('darkMode');
+      // true for dark mode, false for bright mode
+      if(modeFlag === "true"){
+        document.querySelector('body').classList.add('mdui-theme-layout-dark')
+        document.querySelector('meta[name="theme-color"]').setAttribute("content", "#212121")
+        return true
+      } else if(!window.matchMedia) {
+          return false;
+      } else if(window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        document.querySelector('body').classList.add('mdui-theme-layout-dark')
+        document.querySelector('meta[name="theme-color"]').setAttribute("content", "#212121")
+          return true;
+      } else if(window.matchMedia("(prefers-color-scheme: light)").matches) {
+        document.querySelector('body').classList.remove('mdui-theme-layout-dark')
+        document.querySelector('meta[name="theme-color"]').setAttribute("content", "#fff")
+          return false;
+      } else {
+        return false;
+      }
+    }
+    var modeFlag = detechTheme();
+    var modeEl = document.querySelector('.theme-appbar__mode-switch');
+    function modeSwitch() {
+      if (!modeFlag) {
+        // default bright mode, switch to dark mode
+        document.querySelector('body').classList.add('mdui-theme-layout-dark');
+        document.querySelector('meta[name="theme-color"]').setAttribute("content", "#212121")
+        localStorage.setItem('darkMode', true);
+        modeFlag = true;
+      } else {
+        // dark mode, switch to bright mode
+        document.querySelector('body').classList.remove('mdui-theme-layout-dark');
+        document.querySelector('meta[name="theme-color"]').setAttribute("content", "#fff")
+        localStorage.setItem('darkMode', false);
+        modeFlag = false;
+      }
+    }
+    modeEl.addEventListener('click', modeSwitch);
+  })();
+</script>
+
+
+
+
+
+
+<script type="text/javascript">
+  document.querySelector('body').classList.add('theme-loaded')
+</script>
+
+
+
+
+</body>
+</html>
